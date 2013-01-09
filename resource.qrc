@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/share/images">
+        <file>resources/button_cancel.png</file>
+        <file>resources/logo.png</file>
+        <file>resources/logo2.png</file>
+    </qresource>
+</RCC>

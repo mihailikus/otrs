@@ -1,0 +1,10 @@
+#Michael Volkov 
+#
+#OTRS config file
+
+otrs.username=username
+otrs.userpass=pass
+
+bill.username=username
+bill.userpass=pass
+
