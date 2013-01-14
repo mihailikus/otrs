@@ -14,12 +14,8 @@ OtrsModule::OtrsModule (LoginConfig cfg) {
     QByteArray bytes;
     bytes.append(postData);
 
-    qDebug() << QString::number(bytes.count());
-
     request.setRawHeader("Content-type", "application/x-www-form-urlencoded");
 
-
-    //QNetworkAccessManager* manager = new QNetworkAccessManager();
     connect(this, SIGNAL(finished(QNetworkReply*)),
                 this, SLOT(connected(QNetworkReply*)));
     this->post(request, bytes);
@@ -34,7 +30,6 @@ void OtrsModule::connected(QNetworkReply* rpl) {
     QByteArray page = rpl->readAll();
 
     QString pg = page;
-//    qDebug() << pg;
 
     if (pg.contains("302 Moved")) {
         //типа когда успешно залогинимся, поменяем
@@ -97,17 +92,13 @@ void OtrsModule::ticket_described(QNetworkReply *rpl) {
         sender.remove(0, sender.indexOf("&lt;") + 4);
         sender.remove(sender.indexOf("&gt;"), sender.length()-1);
     }
-    //qDebug() << "Sender: " << sender;
     ticket.mail = sender;
 
     //определяем дату тикета
     pg = page;
     QString datetime = pg.remove(0, pg.indexOf("mainvalue\"> ")+12);
-    //datetime = datetime.remove(0, datetime.indexOf("title=\"")+7);
     datetime = datetime.remove(datetime.indexOf("</td>"), datetime.length()-1);
-    //QDate dt = 03.01.2013 11:57:00
     ticket.time = QDateTime::fromString(datetime, "dd.MM.yyyy hh:mm:ss");
-    //qDebug() << "Datetime: " << ticket.time << datetime;
 
     //определяем хост тикета, если возможно
     pg = page;
@@ -129,8 +120,6 @@ void OtrsModule::ticket_described(QNetworkReply *rpl) {
 
 
     ticket.body = pg;
-
-
 
     emit ticket_described_signal(ticket);
 }

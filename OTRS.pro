@@ -28,7 +28,7 @@ HEADERS  += otrs.h \
     OtrsModule.h \
     billingModule.h
 
-FORMS    += otrs.ui
+FORMS    +=
 
 OTHER_FILES +=
 

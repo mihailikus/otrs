@@ -23,7 +23,7 @@ public:
     QString body;
 
     bool operator < (const Ticket &other) const
-      {
+    {
         if (time < other.time)
           return true;
 

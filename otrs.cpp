@@ -2,8 +2,7 @@
 #include "ui_otrs.h"
 
 otrs::otrs(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::otrs)
+    QMainWindow(parent)
 {
     this->resize(1024, 768);
 
@@ -16,15 +15,6 @@ otrs::otrs(QWidget *parent) :
 
     make_central_widget();
     make_status_bar();
-
-
-    //this->adds
-
-
-//    ui->setupUi(this);
-
-//    ui_tableWidget = qFindChild<QTableWidget*>(this, "tableWidget");
-//    ui_bar = qFindChild<QStatusBar*>(this, "statusBar");
 
     otrsChecker = new Checker(this);
     connect(otrsChecker, SIGNAL(connected_success()), SLOT(on_connected()));
@@ -141,24 +131,19 @@ void otrs::make_status_bar() {
 
 otrs::~otrs()
 {
-    //delete ui;
-}
 
+}
 
 void otrs::on_connected() {
     QLabel *lbl = new QLabel(tr("Connected"));
-
-    //this->setCentralWidget(lbl);
     ui_bar->addWidget(lbl);
 }
 
 void otrs::on_newTicket(Ticket ticket) {
-    //qDebug() << "New ticket ready " << ticket.id;
     int row = ui_tableWidget->rowCount();
     ui_tableWidget->setRowCount(row+1);
+
     QTableWidgetItem* item = new QTableWidgetItem(QString::number(ticket.id));
-    //item->setToolTip(ticket.body);
-    //item->setWhatsThis(ticket.body);
     ui_tableWidget->setItem(row, 0, item);
 
     item = new QTableWidgetItem(ticket.time.toString(tr("d MMMM yyyy, hh.mm")));
@@ -186,7 +171,6 @@ void otrs::on_newTicket(Ticket ticket) {
 }
 
 void otrs::on_delTicket(Ticket ticket) {
-    //qDebug() << "ticket to deleted " << ticket.time;
     int ro = ui_tableWidget->rowCount();
     for (int i = 0; i<ro; i++) {
         if (ui_tableWidget->item(i, 0)->text().toInt() == ticket.id)
@@ -196,7 +180,6 @@ void otrs::on_delTicket(Ticket ticket) {
             ro--;
             i--;
         }
-
     }
 }
 
@@ -208,7 +191,6 @@ void otrs::updateTicket(Ticket ticket) {
     QTableWidgetItem* itemMoney = new QTableWidgetItem(QString::number(ticket.money));
     QTableWidgetItem* itemServer = new QTableWidgetItem(QString::number(ticket.server));
 
-    //qDebug() << "Updating ticket " << ticket.id << ticket.mail;
     for (int i = 0; i<ui_tableWidget->rowCount(); i++) {
          text = ui_tableWidget->item(i, 0)->text();
          if (text.toInt() == ticket.id) {
@@ -220,25 +202,20 @@ void otrs::updateTicket(Ticket ticket) {
             ui_tableWidget->setItem(i, 5, itemMoney);
             ui_tableWidget->setItem(i, 6, itemServer);
          }
-
     }
-
 }
 
 void otrs::on_clipboard_changed() {
     QClipboard *clipboard = QApplication::clipboard();
     QString originalText = clipboard->text();
-    //qDebug() << "Clipboard changed " << originalText;
     QString supertxt;
     bool confirm = false;
     int i=0;
     while (!confirm && i<ui_tableWidget->rowCount()) {
-    //for (int i = 0; i<ui_tableWidget->rowCount(); i++) {
         supertxt = "";
         confirm = false;
         for (int j = 0; j<ui_tableWidget->columnCount(); j++) {
             QString txt = ui_tableWidget->item(i, j)->text();
-            //qDebug() << "i j " << i << j << txt;
             supertxt += txt + "\n";
             if (txt == originalText) {
                 confirm = true;
@@ -262,14 +239,9 @@ void otrs::on_action_exit() {
 void otrs::on_logUpdate(QString txt) {
     logView->insertHtml(txt + "<br>\n");
     logView->scrollToAnchor(txt);
-//    QString html = logView->toHtml();
-//    html += txt;
-//    logView->setHtml(html);
-    //logView->append(txt);
 }
 
 void otrs::on_action_log(bool status) {
-    //qDebug() << "Status " << status;
     if (status) {
         logView->show();
         tickView->hide();
@@ -287,13 +259,11 @@ void otrs::on_mouse_click(int x, int y) {
     on_action_log(false);
     action_log->setChecked(false);
 
-
     tickView->setVisible(true);
 
     int id = ui_tableWidget->item(x, y)->text().toInt();
     QString txt = ticketList[id].body;
-    //qDebug() <<"Cell clicked " << x << y << txt;
-    tickView->clear();
+   tickView->clear();
     tickView->insertHtml(txt);
 
 }

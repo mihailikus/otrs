@@ -15,8 +15,6 @@
 #include <QStandardItemModel>
 #include <QTextBrowser>
 #include <QMap>
-//#include <QTable
-
 #include "checker.h"
 
 namespace Ui {
@@ -40,8 +38,6 @@ public slots:
     void on_logUpdate(QString txt);
     
 private:
-    Ui::otrs *ui;
-
     QStatusBar *ui_bar;
     QTableWidget *ui_tableWidget;
     QTextBrowser *logView, *tickView;

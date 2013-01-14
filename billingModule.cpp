@@ -8,9 +8,6 @@ BillingModule::BillingModule (LoginConfig cfg) {
     url.replace("{User}", cfg.username);
     url.replace("{Password}", cfg.userpass);
 
-    //qDebug() << "Bill url: \n" << url;
-
-
     QUrl bill = QUrl(url);
 
     request.setUrl(bill);
@@ -28,8 +25,6 @@ void BillingModule::connected(QNetworkReply *) {
     qDebug() << "Connected " ;
     disconnect(SIGNAL(finished(QNetworkReply*)));
 }
-
-
 
 void BillingModule::describe_ticket_by_email(Ticket ticket) {
     QString url1 = url;
@@ -49,9 +44,9 @@ void BillingModule::describe_by_email_finished(QNetworkReply *rpl) {
     disconnect(SIGNAL(finished(QNetworkReply*)));
     QByteArray page = rpl->readAll();
     QString pg = page;
-    //qDebug() << pg;
     Ticket ticket;
     ticket.money = 0;
+    ticket.server = -1;
     ticket.mail = mail;
     ticket.isChecked = true;
 
