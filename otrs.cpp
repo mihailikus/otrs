@@ -190,6 +190,8 @@ void otrs::updateTicket(Ticket ticket) {
     QTableWidgetItem* itemMail = new QTableWidgetItem("status");
     QTableWidgetItem* itemMoney = new QTableWidgetItem(QString::number(ticket.money));
     QTableWidgetItem* itemServer = new QTableWidgetItem(QString::number(ticket.server));
+    QTableWidgetItem* itemHost = new QTableWidgetItem(ticket.host);
+
 
     for (int i = 0; i<ui_tableWidget->rowCount(); i++) {
          text = ui_tableWidget->item(i, 0)->text();
@@ -198,6 +200,7 @@ void otrs::updateTicket(Ticket ticket) {
                  itemMail->setText(m1);
              else
                  itemMail->setText(m2);
+            ui_tableWidget->setItem(i, 2, itemHost);
             ui_tableWidget->setItem(i, 4, itemMail);
             ui_tableWidget->setItem(i, 5, itemMoney);
             ui_tableWidget->setItem(i, 6, itemServer);

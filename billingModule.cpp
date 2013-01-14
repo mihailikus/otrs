@@ -61,7 +61,7 @@ void BillingModule::describe_by_email_finished(QNetworkReply *rpl) {
             position = pg.indexOf("host=host");
         }
 
-        host1 = pg.remove(0, position);
+        host1 = pg.remove(0, position+5);
         host1.remove(host1.indexOf("\" "), host1.length()-1);
 
         ticket.host = host1;

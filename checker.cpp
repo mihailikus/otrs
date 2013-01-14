@@ -258,6 +258,7 @@ void Checker::work_on_bill_ticket_done(Ticket ticket) {
             oldList[i].isMailinBase = ticket.isMailinBase;
             oldList[i].money = ticket.money;
             oldList[i].server = ticket.server;
+            oldList[i].host = ticket.host;
 
             //ticket.id = oldList[i].id;
             emit update_ticket(oldList[i]);
@@ -265,9 +266,6 @@ void Checker::work_on_bill_ticket_done(Ticket ticket) {
 
     }
 
-    //oldList[workInBillNumber].isChecked = true;
-    //ticket.id = workInBillId;
-    //emit update_ticket(ticket);
     workInBill = false;
     work_on_bill_ticket();
 }
