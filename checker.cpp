@@ -97,6 +97,9 @@ void Checker::connection_ready(int status) {
         qDebug() << "connected";
         this->run();
         emit connected_success();
+    } else {
+        qDebug() << "Cannot connect";
+        emit logText(tr("Cannot connect. Check your config.ini file"));
     }
 }
 

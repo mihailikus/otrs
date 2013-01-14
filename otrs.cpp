@@ -1,5 +1,5 @@
 #include "otrs.h"
-#include "ui_otrs.h"
+//#include "ui_otrs.h"
 
 otrs::otrs(QWidget *parent) :
     QMainWindow(parent)

@@ -2,6 +2,7 @@
 #define OTRS_H
 
 #include <QMainWindow>
+#include <QApplication>
 #include <QLabel>
 #include <QStatusBar>
 #include <QTableWidget>
@@ -15,6 +16,7 @@
 #include <QStandardItemModel>
 #include <QTextBrowser>
 #include <QMap>
+#include <QHeaderView>
 #include "checker.h"
 
 namespace Ui {
