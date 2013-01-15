@@ -6,6 +6,7 @@
 class LoginConfig {
 public:
     QString uri;
+    QString uri2;
     QString post;
     QString username;
     QString userpass;

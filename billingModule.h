@@ -23,13 +23,17 @@ private slots:
     void describe_by_email_finished(QNetworkReply *rpl);
 
 private:
-    QString url;
+    QString url, url2;
     QString mail;
     QString host;
     QString id;
 
+    int describeMethod;  //определяет, какая процедура запущена для идентификации
+
 public slots:
     void describe_ticket_by_email(Ticket ticket);
+    void describe_ticket_by_host(Ticket ticket);
+
 
 signals:
     void describe_by_email_signal(Ticket ticket);

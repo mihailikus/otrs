@@ -8,6 +8,11 @@ BillingModule::BillingModule (LoginConfig cfg) {
     url.replace("{User}", cfg.username);
     url.replace("{Password}", cfg.userpass);
 
+    url2 = cfg.uri2;
+    url2.replace("{User}", cfg.username);
+    url2.replace("{Password}", cfg.userpass);
+
+
     QUrl bill = QUrl(url);
 
     request.setUrl(bill);
@@ -22,17 +27,30 @@ BillingModule::~BillingModule() {
 }
 
 void BillingModule::connected(QNetworkReply *) {
-    qDebug() << "Connected " ;
     disconnect(SIGNAL(finished(QNetworkReply*)));
 }
 
 void BillingModule::describe_ticket_by_email(Ticket ticket) {
+    describeMethod = 1;
     QString url1 = url;
     host = ticket.host;
     mail = ticket.mail;
     id = QString::number(ticket.id);
     url1.replace("{email}", mail);
-    //qDebug() << "Url = " << url1;
+    QUrl bill = QUrl(url1);
+    connect(this, SIGNAL(finished(QNetworkReply*)),
+            this, SLOT(describe_by_email_finished(QNetworkReply*)));
+
+    this->get(QNetworkRequest(bill));
+}
+
+void BillingModule::describe_ticket_by_host(Ticket ticket) {
+    describeMethod = 0;
+    QString url1 = url2;
+    host = ticket.host;
+    mail = ticket.mail;
+    id = QString::number(ticket.id);
+    url1.replace("{host}", host);
     QUrl bill = QUrl(url1);
     connect(this, SIGNAL(finished(QNetworkReply*)),
             this, SLOT(describe_by_email_finished(QNetworkReply*)));
@@ -50,8 +68,11 @@ void BillingModule::describe_by_email_finished(QNetworkReply *rpl) {
     ticket.mail = mail;
     ticket.isChecked = true;
 
-    if (!pg.contains("host=host")) {
-        qDebug() << "email not found";
+    if ( (!describeMethod && !pg.contains(mail))
+            ||
+         (describeMethod && !pg.contains("host=host"))            )
+    {
+        qDebug() << "email not found, method " << describeMethod;
         ticket.isMailinBase = false;
     } else {
         QString host1;
@@ -65,8 +86,6 @@ void BillingModule::describe_by_email_finished(QNetworkReply *rpl) {
         host1.remove(host1.indexOf("\" "), host1.length()-1);
 
         ticket.host = host1;
-        //emit logTxt("Get BILL page: " + host);
-        //qDebug() << "Get BILL page: " << host;
         ticket.isMailinBase = true;
 
         //вычислим номер сервера, на котором находится аккаунт
@@ -80,10 +99,8 @@ void BillingModule::describe_by_email_finished(QNetworkReply *rpl) {
         QString money = pg.remove(0, pg.indexOf("<p style=\"font-weight: 700;\">")+29);
         money.remove(money.indexOf(" "), money.length()-1);
         emit logTxt("Ticket <a href=\"http://77.234.201.87/otrs/index.pl?Action=AgentTicketZoom&TicketID=" + id + "\">" + id + "</a> balans = " + money);
-        //qDebug() << "Host " << host << " balans=" << money;
         ticket.money = money.toFloat();
 
     }
-    //qDebug() << "Signal check";
     emit describe_by_email_signal(ticket);
 }

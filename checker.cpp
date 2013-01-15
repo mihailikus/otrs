@@ -24,6 +24,7 @@ Checker::Checker (QObject *parent)
     otrsConfig.userpass = "";
 
     billConfig.uri = "http://{User}:{Password}@billing.hostland.ru/info/public/index.php?account=&something={email}&status=1/";
+    billConfig.uri2= "http://{User}:{Password}@billing.hostland.ru/info/public/index.php?account={host}&something=&status=1";
     billConfig.post = "";
     billConfig.username = "";
     billConfig.userpass = "";
@@ -237,14 +238,16 @@ void Checker::work_on_bill_ticket() {
     if (workInBill) return;
     int j = 1;
     for (int i = 0; i<oldList.count(); i++) {
-        //qDebug() << "i=" << i;
         j++;
         if (!oldList.at(i).isChecked && !workInBill) {
-            //qDebug() << oldList.at(i).id;
             workInBill = true;
             workInBillId = oldList.at(i).id;
             workInBillNumber = i;
-            billConnection->describe_ticket_by_email(oldList[i]);
+            if (oldList[i].host.startsWith("host")) {
+                billConnection->describe_ticket_by_host(oldList[i]);
+            } else {
+                billConnection->describe_ticket_by_email(oldList[i]);
+            }
         }
     }
     if (j == oldList.count())
@@ -253,9 +256,7 @@ void Checker::work_on_bill_ticket() {
 }
 
 void Checker::work_on_bill_ticket_done(Ticket ticket) {
-    qDebug() << "Update ticket " << "server " + QString::number(ticket.server);
     for (int i = 0; i<oldList.count(); i++) {
-        //qDebug() << "mail " << ticket.mail << oldList[i].mail;
         if (oldList[i].mail == ticket.mail) {
             oldList[i].isChecked = true;
             oldList[i].isMailinBase = ticket.isMailinBase;
@@ -263,7 +264,6 @@ void Checker::work_on_bill_ticket_done(Ticket ticket) {
             oldList[i].server = ticket.server;
             oldList[i].host = ticket.host;
 
-            //ticket.id = oldList[i].id;
             emit update_ticket(oldList[i]);
         }
 
@@ -274,6 +274,5 @@ void Checker::work_on_bill_ticket_done(Ticket ticket) {
 }
 
 void Checker::on_logTxt(QString txt) {
-    //qDebug() << "LOG1" << txt;
     emit logText(txt);
 }
