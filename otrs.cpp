@@ -25,10 +25,10 @@ otrs::otrs(QWidget *parent) :
 
     icon = new QSystemTrayIcon(QIcon(":/share/images/resources/logo.png"), this);
 
-    icon->show();
-
     QClipboard *pcb = QApplication::clipboard();
     connect (pcb, SIGNAL(dataChanged()), this, SLOT(on_clipboard_changed()));
+
+    icon->show();
 
     otrsChecker->run();
 
@@ -51,6 +51,12 @@ void otrs::make_actions() {
     action_log->setChecked(false);
     on_action_log(false);
 
+    action_tray = new QAction(tr("Tray"), this);
+    action_tray->setShortcut(QKeySequence("Ctrl+T"));
+    action_tray->setCheckable(true);
+    action_tray->setChecked(true);
+
+
 
 }
 
@@ -67,6 +73,8 @@ void otrs::make_tool_bar() {
     toolBar = new QToolBar(tr("Main toolbar"));
     toolBar->addAction(action_logo);
     toolBar->addAction(action_log);
+    toolBar->addAction(action_tray);
+    toolBar->addSeparator();
     toolBar->addAction(action_exit);
     this->addToolBar(toolBar);
 
@@ -164,7 +172,8 @@ void otrs::on_newTicket(Ticket ticket) {
     item = new QTableWidgetItem(" ");
     ui_tableWidget->setItem(row, 6, item);
 
-    icon->showMessage(tr("OTRS"), tr("New ticket ready"));
+    if (action_tray->isChecked())
+        icon->showMessage(tr("OTRS"), tr("New ticket ready"));
 
     ticketList[ticket.id] = ticket;
 
@@ -228,7 +237,8 @@ void otrs::on_clipboard_changed() {
     }
     if (confirm) {
         ui_tableWidget->selectRow(i-1);
-        icon->showMessage("OTRS", supertxt);
+        if (action_tray->isChecked())
+            icon->showMessage("OTRS", supertxt);
     }
 
 }

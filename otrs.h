@@ -59,6 +59,7 @@ private:
     QAction *action_exit;
     QAction *action_logo;
     QAction *action_log;
+    QAction *action_tray;
 
     QMap<int, Ticket> ticketList;
 
