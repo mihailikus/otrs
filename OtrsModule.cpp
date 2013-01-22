@@ -59,28 +59,36 @@ void OtrsModule::get_current_tickets() {
 }
 
 void OtrsModule::current_tickets_ready(QNetworkReply *rpl) {
+    disconnect(SIGNAL(finished(QNetworkReply*)));
     QString line;
     tickets.clear();
+    bool currPage = true;
+    QString nextUrl;
+
     while (!rpl->atEnd()) {
         line = rpl->readLine();
         if (line.contains("Action=AgentTicketZoom&TicketID=") && line.contains("onmouseover")) {
             tickets << line.split("TicketID=").at(1).split("\"  onmouseover").at(0);
        }
         otrsCurrentPage++;
-        QString nextUrl = requestUrl;
+        nextUrl = requestUrl;
         nextUrl.remove("http://");
         nextUrl.remove(0, nextUrl.indexOf("/"));
         nextUrl.replace("{Page}", QString::number(otrsCurrentPage));
-        //qDebug() << "Next url: " << nextUrl;
 
-        if (line.contains(nextUrl)) {
-            //если содержится ссылка на следующую страницу - прибавляем номер страницы, иначе 1
-
-        } else {
-            otrsCurrentPage = 1;
+        if (currPage) {
+            if (line.contains(nextUrl)) {
+                qDebug() << "Next url: " << nextUrl;
+                qDebug() << 1;
+                currPage = false;
+                //если содержится ссылка на следующую страницу - прибавляем номер страницы, иначе 1
+            } else {
+                //qDebug() << 2;
+                otrsCurrentPage = 1;
+            }
         }
+
     }
-    disconnect(SIGNAL(finished(QNetworkReply*)));
     emit ticket_list_ready(tickets);
 
 }
@@ -135,13 +143,18 @@ void OtrsModule::ticket_described(QNetworkReply *rpl) {
 
     //определяем сообщение в теле тикета
     QTextCodec *codec = QTextCodec::codecForName("UTF-8");
-
     pg = codec->toUnicode(page);
     pg.remove(0, pg.indexOf("<div class=\"message\">"));
     pg.remove(pg.indexOf("</div"), pg.length()-1);
-
-
     ticket.body = pg;
+
+    //определяем тему тикета
+    pg = codec->toUnicode(page);
+    pg.remove(0, pg.indexOf("class=\"mainhead\">")+18);
+    pg.remove(0, pg.indexOf("\n"));
+    pg.remove(pg.indexOf("</td>")-1, pg.length()-1);
+    ticket.subject = pg.trimmed();
+    qDebug() << "subject: " << ticket.subject;
 
     emit ticket_described_signal(ticket);
 }

@@ -20,6 +20,7 @@ public:
     float   paid;   //сколько денег было оплачено
     bool    isAccBlocked;
 
+    QString subject;
     QString body;
 
     bool operator < (const Ticket &other) const

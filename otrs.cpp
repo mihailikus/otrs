@@ -275,7 +275,9 @@ void otrs::on_mouse_click(int x, int y) {
     tickView->setVisible(true);
 
     int id = ui_tableWidget->item(x, y)->text().toInt();
-    QString txt = ticketList[id].body;
+    QString txt;
+    txt = "<b>" + ticketList[id].subject + "</b><br>\n";
+    txt += ticketList[id].body;
    tickView->clear();
     tickView->insertHtml(txt);
 
