@@ -15,7 +15,11 @@ public:
     OtrsModule (LoginConfig cfg);
     ~OtrsModule ();
 
+
+private:
+    int otrsCurrentPage;
     QStringList tickets;
+    QString requestUrl;
 
 private slots:
     void connected(QNetworkReply *rpl);

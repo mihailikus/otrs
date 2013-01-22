@@ -19,6 +19,7 @@ Checker::Checker (QObject *parent)
 
     //читаем файл конфигурации config.ini
     otrsConfig.uri = "http://77.234.201.87/otrs/index.pl";
+    otrsConfig.uri2 = "http://77.234.201.87/otrs/index.pl?Action=AgentTicketQueue&QueueID=1&View=&SortBy=Age&OrderBy=Up&StartWindow=0&StartHit={Page}";
     otrsConfig.post ="Action=Login&RequestedURL=&Lang=ru&TimeOffset=-240&User={User}&Password={Password}";
     otrsConfig.username = "";
     otrsConfig.userpass = "";

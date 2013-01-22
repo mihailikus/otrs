@@ -26,7 +26,8 @@ BillingModule::~BillingModule() {
 
 }
 
-void BillingModule::connected(QNetworkReply *) {
+void BillingModule::connected(QNetworkReply * rpl) {
+    emit logTxt(tr("Billing connected: "));
     disconnect(SIGNAL(finished(QNetworkReply*)));
 }
 
