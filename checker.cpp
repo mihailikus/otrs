@@ -8,7 +8,6 @@ Checker::Checker (QObject *parent)
     stopValue = 1;
     blockValue = 1;
 
-    workOnTicket = false;
     otrsConnected = false;
 
     workInBill = false;
@@ -188,8 +187,6 @@ void Checker::new_tickets_list_ready(QStringList lst) {
 
 }
 void Checker::work_on_ticket_progress() {
-    workOnTicket = true;
-
     currentId = newList.at(currentTicket).id;
     otrsConnection->describe_ticket(currentId);
 }
@@ -200,7 +197,6 @@ void Checker::work_on_ticket_done(Ticket ticket) {
     newList[currentTicket] = ticket;
 
     currentTicket++;
-    workOnTicket = false;
 
     emit new_ticket(ticket);
 

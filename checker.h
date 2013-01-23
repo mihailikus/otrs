@@ -24,7 +24,6 @@ private:
     OtrsModule *otrsConnection;
     BillingModule *billConnection;
 
-    bool workOnTicket;
     int currentTicket;
     int currentId;
 
