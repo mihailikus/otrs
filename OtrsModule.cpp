@@ -70,7 +70,7 @@ void OtrsModule::current_tickets_ready(QNetworkReply *rpl) {
         if (line.contains("Action=AgentTicketZoom&TicketID=") && line.contains("onmouseover")) {
             tickets << line.split("TicketID=").at(1).split("\"  onmouseover").at(0);
        }
-        otrsCurrentPage++;
+        otrsCurrentPage += 15;
         nextUrl = requestUrl;
         nextUrl.remove("http://");
         nextUrl.remove(0, nextUrl.indexOf("/"));
@@ -83,7 +83,7 @@ void OtrsModule::current_tickets_ready(QNetworkReply *rpl) {
                 currPage = false;
                 //если содержится ссылка на следующую страницу - прибавляем номер страницы, иначе 1
             } else {
-                //qDebug() << 2;
+                qDebug() << "Next url: " << nextUrl;
                 otrsCurrentPage = 1;
             }
         }
@@ -154,7 +154,7 @@ void OtrsModule::ticket_described(QNetworkReply *rpl) {
     pg.remove(0, pg.indexOf("\n"));
     pg.remove(pg.indexOf("</td>")-1, pg.length()-1);
     ticket.subject = pg.trimmed();
-    qDebug() << "subject: " << ticket.subject;
+    //qDebug() << "subject: " << ticket.subject;
 
     emit ticket_described_signal(ticket);
 }
