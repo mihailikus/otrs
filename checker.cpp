@@ -17,58 +17,59 @@ Checker::Checker (QObject *parent)
     newList.clear();
 
     //читаем файл конфигурации config.ini
-    otrsConfig.uri = "http://77.234.201.87/otrs/index.pl";
-    otrsConfig.uri2 = "http://77.234.201.87/otrs/index.pl?Action=AgentTicketQueue&QueueID=1&View=&SortBy=Age&OrderBy=Up&StartWindow=0&StartHit={Page}";
-    otrsConfig.post ="Action=Login&RequestedURL=&Lang=ru&TimeOffset=-240&User={User}&Password={Password}";
-    otrsConfig.username = "";
-    otrsConfig.userpass = "";
-
-    billConfig.uri = "http://{User}:{Password}@billing.hostland.ru/info/public/index.php?account=&something={email}&status=1/";
-    billConfig.uri2= "http://{User}:{Password}@billing.hostland.ru/info/public/index.php?account={host}&something=&status=1";
-    billConfig.post = "";
-    billConfig.username = "";
-    billConfig.userpass = "";
-
     QFile *file = new QFile("./config.ini");
-    if (file->open(QFile::ReadOnly))
-    {
-    //читаем название организации из файла
-    QString name;
+    if (!file->open(QFile::ReadOnly)) {
+        emit logText(tr("Cannot open config file config.ini"));
+        return;
+    }
+
     QByteArray line;
+    QString params;
+    QString value;
+    int i = 0;
     while (!file->atEnd()) {
         line = file->readLine();
         if (line.at(0) != '#') {
-            if (line.contains("otrs.username")) {
-                name = line;
-                if (name.split("=").count()>1) {
-                    name = name.split("=").at(1).trimmed();
-                    otrsConfig.username = name;
-                }
-            }
-            if (line.contains("otrs.userpass")) {
-                name = line;
-                if (name.split("=").count()>1) {
-                    name = name.split("=").at(1).trimmed();
-                    otrsConfig.userpass = name;
-                }
-            }
-            if (line.contains("bill.username")) {
-                name = line;
-                if (name.split("=").count()>1) {
-                    name = name.split("=").at(1).trimmed();
-                    billConfig.username = name;
-                }
-            }
-            if (line.contains("bill.userpass")) {
-                name = line;
-                if (name.split("=").count()>1) {
-                    name = name.split("=").at(1).trimmed();
-                    billConfig.userpass = name;
-                }
-            }
+            params = line;
+            params.remove(0, params.indexOf("=")+1);
+            params = params.trimmed();
+
+            value = line;
+            value.remove(value.indexOf("="), value.length()-1);
+            value = value.trimmed();
+
+            qDebug() << i++ << params << value;
+            if (value == "otrs.username")
+                otrsConfig.username = params;
+
+            if (value == "otrs.url")
+                otrsConfig.uri = params;
+
+            if (value == "otrs.url2")
+                otrsConfig.uri2 = params;
+
+            if (value == "otrs.post")
+                otrsConfig.post = params;
+
+            if (value == "otrs.zoom")
+                otrsConfig.zoom = params;
+
+            if (value == "bill.url")
+                billConfig.uri = params;
+
+            if (value == "bill.url2")
+                billConfig.uri2 = params;
+
+            if (value == "otrs.userpass")
+                otrsConfig.userpass = params;
+
+            if (value == "bill.username")
+                billConfig.username = params;
+
+            if (value == "bill.userpass")
+                billConfig.userpass = params;
 
         }
-    }
     }
     file->close();
 

@@ -9,6 +9,8 @@ OtrsModule::OtrsModule (LoginConfig cfg) {
     postData.replace("{Password}", cfg.userpass);
 
     requestUrl = cfg.uri2;
+    zoomUrl    = cfg.zoom;
+
     otrsCurrentPage = 1;
 
     QNetworkRequest request;
@@ -54,8 +56,6 @@ void OtrsModule::get_current_tickets() {
     url.replace("{Page}", QString::number(otrsCurrentPage));
     this->get(QNetworkRequest(QUrl(url)));
 
-    //this->get(QNetworkRequest(QUrl("http://77.234.201.87/otrs/index.pl?Action=AgentTicketQueue&QueueID=1&View=")));
-    //http://77.234.201.87/otrs/index.pl?Action=AgentTicketQueue&QueueID=1&View=&SortBy=Age&OrderBy=Up&StartWindow=0&StartHit=1
 }
 
 void OtrsModule::current_tickets_ready(QNetworkReply *rpl) {
@@ -78,12 +78,12 @@ void OtrsModule::current_tickets_ready(QNetworkReply *rpl) {
 
         if (currPage) {
             if (line.contains(nextUrl)) {
-                qDebug() << "Next url: " << nextUrl;
-                qDebug() << 1;
+                //qDebug() << "Next url: " << nextUrl;
+                //qDebug() << 1;
                 currPage = false;
                 //если содержится ссылка на следующую страницу - прибавляем номер страницы, иначе 1
             } else {
-                qDebug() << "Next url: " << nextUrl;
+                //qDebug() << "Next url: " << nextUrl;
                 otrsCurrentPage = 1;
             }
         }
@@ -97,8 +97,7 @@ void OtrsModule::describe_ticket(int id) {
     //qDebug() << "Desc id " << id;
     connect(this, SIGNAL(finished(QNetworkReply*)),
                 this, SLOT(ticket_described(QNetworkReply*)));
-    QString url = "http://77.234.201.87/otrs/index.pl?Action=AgentTicketZoom&TicketID="
-            + QString::number(id);
+    QString url = zoomUrl + QString::number(id);
     this->get(QNetworkRequest(QUrl(url)));
 }
 

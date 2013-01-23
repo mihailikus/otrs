@@ -7,6 +7,7 @@ class LoginConfig {
 public:
     QString uri;
     QString uri2;
+    QString zoom;
     QString post;
     QString username;
     QString userpass;

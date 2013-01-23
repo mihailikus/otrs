@@ -20,6 +20,7 @@ private:
     int otrsCurrentPage;
     QStringList tickets;
     QString requestUrl;
+    QString zoomUrl;
 
 private slots:
     void connected(QNetworkReply *rpl);
