@@ -36,6 +36,7 @@ void BillingModule::describe_ticket_by_email(Ticket ticket) {
     QString url1 = url;
     host = ticket.host;
     mail = ticket.mail;
+    qDebug() << "Desc by mail " << mail;
     id = QString::number(ticket.id);
     url1.replace("{email}", mail);
     QUrl bill = QUrl(url1);

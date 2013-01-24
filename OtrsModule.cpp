@@ -13,6 +13,8 @@ OtrsModule::OtrsModule (LoginConfig cfg) {
 
     otrsCurrentPage = 1;
 
+    allPages = false;
+
     QNetworkRequest request;
     request.setUrl(QUrl(cfg.uri));
 
@@ -60,35 +62,62 @@ void OtrsModule::get_current_tickets() {
 
 void OtrsModule::current_tickets_ready(QNetworkReply *rpl) {
     disconnect(SIGNAL(finished(QNetworkReply*)));
-    QString line;
+    QByteArray page = rpl->readAll();
+    QString pg = page;
     tickets.clear();
-    bool currPage = true;
-    QString nextUrl;
 
-    while (!rpl->atEnd()) {
-        line = rpl->readLine();
-        if (line.contains("Action=AgentTicketZoom&TicketID=") && line.contains("onmouseover")) {
-            tickets << line.split("TicketID=").at(1).split("\"  onmouseover").at(0);
+    QStringList lines = pg.split("\n");
+    for (int i = 0; i<lines.count(); i++) {
+        if (lines.at(i).contains("Action=AgentTicketZoom&TicketID=") && lines.at(i).contains("onmouseover")) {
+            tickets << lines.at(i).split("TicketID=").at(1).split("\"  onmouseover").at(0);
        }
-        otrsCurrentPage += 15;
-        nextUrl = requestUrl;
-        nextUrl.remove("http://");
-        nextUrl.remove(0, nextUrl.indexOf("/"));
-        nextUrl.replace("{Page}", QString::number(otrsCurrentPage));
-
-        if (currPage) {
-            if (line.contains(nextUrl)) {
-                //qDebug() << "Next url: " << nextUrl;
-                //qDebug() << 1;
-                currPage = false;
-                //если содержится ссылка на следующую страницу - прибавляем номер страницы, иначе 1
-            } else {
-                //qDebug() << "Next url: " << nextUrl;
-                otrsCurrentPage = 1;
-            }
-        }
-
     }
+
+    otrsCurrentPage += 15;
+    QString nextUrl;
+    nextUrl = requestUrl;
+    nextUrl.remove("http://");
+    nextUrl.remove(0, nextUrl.indexOf("/"));
+    nextUrl.replace("{Page}", QString::number(otrsCurrentPage));
+
+    if (pg.contains(nextUrl)) {
+        allPages = false;
+    } else {
+        otrsCurrentPage = 1;
+        allPages = true;
+    }
+
+
+//    QString line;
+//    tickets.clear();
+//    bool currPage = true;
+//    QString nextUrl;
+
+
+//    while (!rpl->atEnd()) {
+//        line = rpl->readLine();
+//        if (line.contains("Action=AgentTicketZoom&TicketID=") && line.contains("onmouseover")) {
+//            tickets << line.split("TicketID=").at(1).split("\"  onmouseover").at(0);
+//       }
+
+
+//        if (currPage) {
+//            if (line.contains(nextUrl)) {
+//                qDebug() << "Next url: " << nextUrl;
+//                //qDebug() << 1;
+//                currPage = false;
+//                allPages = false;
+//                //если содержится ссылка на следующую страницу - прибавляем номер страницы, иначе 1
+//            } else {
+//                qDebug() << "OLD url: " << nextUrl;
+//                otrsCurrentPage = 1;
+//            }
+//        }
+
+//    }
+//    if (currPage)
+//        allPages = true;
+
     emit ticket_list_ready(tickets);
 
 }
@@ -156,4 +185,9 @@ void OtrsModule::ticket_described(QNetworkReply *rpl) {
     //qDebug() << "subject: " << ticket.subject;
 
     emit ticket_described_signal(ticket);
+}
+
+bool OtrsModule::isAllPages() {
+    //qDebug() << "All pages " << allPages;
+    return allPages;
 }

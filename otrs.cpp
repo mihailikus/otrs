@@ -54,7 +54,7 @@ void otrs::make_actions() {
     action_tray = new QAction(tr("Tray"), this);
     action_tray->setShortcut(QKeySequence("Ctrl+T"));
     action_tray->setCheckable(true);
-    action_tray->setChecked(true);
+    action_tray->setChecked(false);
 
 
 

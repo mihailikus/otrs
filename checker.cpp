@@ -38,7 +38,6 @@ Checker::Checker (QObject *parent)
             value.remove(value.indexOf("="), value.length()-1);
             value = value.trimmed();
 
-            qDebug() << i++ << params << value;
             if (value == "otrs.username")
                 otrsConfig.username = params;
 
@@ -133,58 +132,74 @@ void Checker::new_tickets_list_ready(QStringList lst) {
     Ticket ticket;
     ticket.isChecked = false;
 
-    newList.clear();
+    tmpList.clear();
     for (int i = 0; i<lst.count(); i++) {
         ticket.id = lst.at(i).toInt();
-        newList.append(ticket);
+        tmpList << ticket;
     }
 
-    curList = newList;
+    //curList = newList;
+    curList << tmpList;
+    //qDebug() << "0New list count " << curList.count() << tmpList.count() << lst.count();
 
-    //из нового (свежего) списка убрать те, которые уже есть в старом
-    for (int i = 0; i<oldList.count(); i++) {
-        int c = newList.count();
-        for (int j = 0; j<c; j++) {
-            //qDebug() << "i j c " << i << j << c << oldList.at(i).id << newList.at(j).id;
-            if (oldList.at(i).id == newList.at(j).id) {
-                newList.remove(j);
-                j--;
-                c--;
-            }
-        }
-    }
+    if (otrsConnection->isAllPages()) {
+     //если проверены все страницы
+        newList = curList;
+        //qDebug() << "1New tickets count: " << newList.count();
 
-    //qDebug() << "New list count " << curList.count() << oldList.count();
-
-
-    //из старого списка убрать те, которых уже нет в новом
-    if (!workInBill) {
-        int c = oldList.count();
-        for (int i = 0; i<c; i++) {
-            bool exists = false;
-            for (int j=0; j<curList.count(); j++) {
-                if (curList[j].id == oldList[i].id) {
-                    exists = true;
+        //из нового (свежего) списка убрать те, которые уже есть в старом
+        for (int i = 0; i<oldList.count(); i++) {
+            int c = newList.count();
+            for (int j = 0; j<c; j++) {
+                //qDebug() << "i j c " << i << j << c << oldList.at(i).id << newList.at(j).id;
+                if (oldList.at(i).id == newList.at(j).id) {
+                    newList.remove(j);
+                    j--;
+                    c--;
                 }
             }
-            if (!exists) {
-                emit remove_ticket (oldList[i]);
-                oldList.remove(i);
-                i--;
-                c--;
-            }
         }
-    }
+
+        //qDebug() << "2New list count " << curList.count() << oldList.count();
 
 
-    //qDebug() << "New tickets count: " << newList.count();
+        //из старого списка убрать те, которых уже нет в новом
+        if (!workInBill) {
+            int c = oldList.count();
+            for (int i = 0; i<c; i++) {
+                bool exists = false;
+                for (int j=0; j<curList.count(); j++) {
+                    if (curList[j].id == oldList[i].id) {
+                        exists = true;
+                    }
+                }
+                if (!exists) {
+                    emit remove_ticket (oldList[i]);
+                    oldList.remove(i);
+                    i--;
+                    c--;
+                }
+            }
 
-    if (newList.count()) {
-        currentTicket = 0;
-        this->work_on_ticket_progress();
+        }
+        //qDebug() << "3New tickets count: " << newList.count();
+
+        if (newList.count()) {
+            currentTicket = 0;
+            //new_ticketes_checked();
+            this->work_on_ticket_progress();
+        } else {
+            new_ticketes_checked();
+        }
+
     } else {
-        new_ticketes_checked();
+        //curList.clear();
+        this->run();
     }
+
+
+
+
 
 }
 void Checker::work_on_ticket_progress() {
@@ -196,6 +211,8 @@ void Checker::work_on_ticket_done(Ticket ticket) {
 
     ticket.id =currentId;
     newList[currentTicket] = ticket;
+
+    billList << ticket;
 
     currentTicket++;
 
@@ -215,9 +232,10 @@ void Checker::work_on_ticket_done(Ticket ticket) {
 
 void Checker::new_ticketes_checked() {
     //и наконец - в старый список добавить новые тикеты
-    oldList += newList;
+    oldList += curList;
 
-    newList.clear();
+    curList.clear();
+    //qDebug() << "Clearing cur list";
     work_on_bill_ticket();
     this->run();
 
@@ -235,34 +253,34 @@ void Checker::stop() {
 void Checker::work_on_bill_ticket() {
     if (workInBill) return;
     int j = 1;
-    for (int i = 0; i<oldList.count(); i++) {
+    for (int i = 0; i<billList.count(); i++) {
         j++;
-        if (!oldList.at(i).isChecked && !workInBill) {
+        if (!billList.at(i).isChecked && !workInBill) {
             workInBill = true;
-            workInBillId = oldList.at(i).id;
+            workInBillId = billList.at(i).id;
             workInBillNumber = i;
-            if (oldList[i].host.startsWith("host")) {
-                billConnection->describe_ticket_by_host(oldList[i]);
+            if (billList[i].host.startsWith("host")) {
+                billConnection->describe_ticket_by_host(billList[i]);
             } else {
-                billConnection->describe_ticket_by_email(oldList[i]);
+                billConnection->describe_ticket_by_email(billList[i]);
             }
         }
     }
-    if (j == oldList.count())
+    if (j == billList.count())
         workInBill = true;
 
 }
 
 void Checker::work_on_bill_ticket_done(Ticket ticket) {
-    for (int i = 0; i<oldList.count(); i++) {
-        if (oldList[i].mail == ticket.mail) {
-            oldList[i].isChecked = true;
-            oldList[i].isMailinBase = ticket.isMailinBase;
-            oldList[i].money = ticket.money;
-            oldList[i].server = ticket.server;
-            oldList[i].host = ticket.host;
+    for (int i = 0; i<billList.count(); i++) {
+        if (billList[i].mail == ticket.mail) {
+            billList[i].isChecked = true;
+            billList[i].isMailinBase = ticket.isMailinBase;
+            billList[i].money = ticket.money;
+            billList[i].server = ticket.server;
+            billList[i].host = ticket.host;
 
-            emit update_ticket(oldList[i]);
+            emit update_ticket(billList[i]);
         }
 
     }

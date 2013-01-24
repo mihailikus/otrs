@@ -31,7 +31,7 @@ private:
     int workInBillId;
     int workInBillNumber;
 
-    QVector<Ticket> ticketList;
+    QVector<Ticket> tmpList, billList;
     QVector<Ticket> oldList, newList, curList;
 
 

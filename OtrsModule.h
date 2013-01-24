@@ -14,6 +14,7 @@ Q_OBJECT
 public:
     OtrsModule (LoginConfig cfg);
     ~OtrsModule ();
+    bool isAllPages();
 
 
 private:
@@ -21,6 +22,8 @@ private:
     QStringList tickets;
     QString requestUrl;
     QString zoomUrl;
+    bool allPages;
+
 
 private slots:
     void connected(QNetworkReply *rpl);
