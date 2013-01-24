@@ -53,6 +53,9 @@ Checker::Checker (QObject *parent)
             if (value == "otrs.zoom")
                 otrsConfig.zoom = params;
 
+            if (value == "otrs.hist")
+                otrsConfig.hist = params;
+
             if (value == "bill.url")
                 billConfig.uri = params;
 
@@ -68,6 +71,21 @@ Checker::Checker (QObject *parent)
             if (value == "bill.userpass")
                 billConfig.userpass = params;
 
+            if (value == "dbHost")
+                mysqlconfig.dbHost = params;
+
+            if (value == "dbName")
+                mysqlconfig.dbName = params;
+
+            if (value == "dbUser")
+                mysqlconfig.dbUser = params;
+
+            if (value == "dbPass")
+                mysqlconfig.dbPass = params;
+
+            if (value == "table")
+                mysqlconfig.table = params;
+
         }
     }
     file->close();
@@ -79,6 +97,9 @@ Checker::Checker (QObject *parent)
             this, SLOT(work_on_bill_ticket_done(Ticket)));
     connect(billConnection, SIGNAL(logTxt(QString)),
             this, SLOT(on_logTxt(QString)));
+
+    timeChecker = new TimeChecker(otrsConfig, mysqlconfig);
+
 
 }
 
@@ -175,6 +196,7 @@ void Checker::new_tickets_list_ready(QStringList lst) {
                 }
                 if (!exists) {
                     emit remove_ticket (oldList[i]);
+                    timeChecker->moveTicket(oldList[i]);
                     oldList.remove(i);
                     i--;
                     c--;
@@ -202,6 +224,7 @@ void Checker::new_tickets_list_ready(QStringList lst) {
 
 
 }
+
 void Checker::work_on_ticket_progress() {
     currentId = newList.at(currentTicket).id;
     otrsConnection->describe_ticket(currentId);
@@ -217,6 +240,7 @@ void Checker::work_on_ticket_done(Ticket ticket) {
     currentTicket++;
 
     emit new_ticket(ticket);
+    timeChecker->getLastTime(currentId);
 
     if (currentTicket<newList.count()) {
         work_on_ticket_progress();
@@ -231,6 +255,12 @@ void Checker::work_on_ticket_done(Ticket ticket) {
 
 
 void Checker::new_ticketes_checked() {
+    //timeChecker->getLastTime(645757);//645757
+    //timeChecker->getLastTime(667921);//645757
+    //timeChecker->moveTicket(667930);
+
+
+
     //и наконец - в старый список добавить новые тикеты
     oldList += curList;
 

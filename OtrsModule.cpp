@@ -41,6 +41,7 @@ void OtrsModule::connected(QNetworkReply* rpl) {
     if (pg.contains("302 Moved")) {
         //типа когда успешно залогинимся, поменяем
         emit connection_established(1);
+        qDebug() << "Connected OK";
         disconnect(SIGNAL(finished(QNetworkReply*)));
 
     } else {

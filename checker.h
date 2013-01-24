@@ -7,8 +7,10 @@
 #include <QFile>
 #include "ticket.h"
 #include "login_config.h"
+#include "mysql_config.h"
 #include "OtrsModule.h"
 #include "billingModule.h"
+#include "timeChecker.h"
 
 #include <QDebug>
 
@@ -21,6 +23,8 @@ private:
 
     bool otrsConnected;
     LoginConfig otrsConfig, billConfig;
+    MysqlConfig mysqlconfig;
+
     OtrsModule *otrsConnection;
     BillingModule *billConnection;
 
@@ -33,6 +37,8 @@ private:
 
     QVector<Ticket> tmpList, billList;
     QVector<Ticket> oldList, newList, curList;
+
+    TimeChecker *timeChecker;
 
 
 public:

@@ -8,6 +8,7 @@ public:
     QString uri;
     QString uri2;
     QString zoom;
+    QString hist;
     QString post;
     QString username;
     QString userpass;

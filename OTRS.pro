@@ -5,8 +5,8 @@
 #-------------------------------------------------
 
 QT       += core gui
-QT  += network
-
+QT       += network
+QT       += sql
 QMAKE_CXXFLAGS += -fno-show-column
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -19,14 +19,17 @@ SOURCES += main.cpp\
         otrs.cpp \
     checker.cpp \
     OtrsModule.cpp \
-    billingModule.cpp
+    billingModule.cpp \
+    timeChecker.cpp
 
 HEADERS  += otrs.h \
     ticket.h \
     login_config.h \
     checker.h \
     OtrsModule.h \
-    billingModule.h
+    billingModule.h \
+    timeChecker.h \
+    mysql_config.h
 
 FORMS    +=
 
