@@ -4,6 +4,7 @@
 otrs::otrs(QWidget *parent) :
     QMainWindow(parent)
 {
+    ///создаем главное окно и инициализируем модуль проверки тикетов
     this->resize(1024, 768);
 
     logView = new QTextBrowser();
@@ -35,7 +36,8 @@ otrs::otrs(QWidget *parent) :
 }
 
 void otrs::make_actions() {
-    //выход из программы
+    ///создаем действия
+
     action_exit = new QAction(QIcon(":/share/images/resources/button_cancel.png"),
                              tr("Exit"), this);
     action_exit->setShortcut(QKeySequence("Ctrl+Q"));
@@ -55,21 +57,18 @@ void otrs::make_actions() {
     action_tray->setShortcut(QKeySequence("Ctrl+T"));
     action_tray->setCheckable(true);
     action_tray->setChecked(false);
-
-
-
 }
 
 void otrs::make_menu() {
+    ///привязываем действия к главному меню
     menuBar = new QMenuBar();
-
     menu = menuBar->addMenu(tr("File"));
     menu->addAction(action_exit);
-
     this->setMenuBar(menuBar);
 }
 
 void otrs::make_tool_bar() {
+    ///привязываем действия на панель инструментов
     toolBar = new QToolBar(tr("Main toolbar"));
     toolBar->addAction(action_logo);
     toolBar->addAction(action_log);
@@ -77,10 +76,10 @@ void otrs::make_tool_bar() {
     toolBar->addSeparator();
     toolBar->addAction(action_exit);
     this->addToolBar(toolBar);
-
 }
 
 void otrs::make_central_widget() {
+    ///создаем центральный виджет - таблицу, куда будут попадать тикеты
 
     ui_tableWidget = new QTableWidget(0, 6);
     connect(ui_tableWidget, SIGNAL(cellClicked(int,int)), this, SLOT(on_mouse_click(int, int)));
@@ -123,6 +122,7 @@ void otrs::make_central_widget() {
     tableHeader->setModel(header_model_1);
     ui_tableWidget->setHorizontalHeader(tableHeader);
 
+    //будет использоваться для равномерного распределения колонок в зависимости от ширины окна
     int w = ui_tableWidget->width() / fields.count();
 
     for (int i=0; i<fields.count(); i++) {
@@ -132,9 +132,9 @@ void otrs::make_central_widget() {
 }
 
 void otrs::make_status_bar() {
+    ///создаем строку состояния
     ui_bar = new QStatusBar();
     this->setStatusBar(ui_bar);
-
 }
 
 otrs::~otrs()
@@ -143,11 +143,14 @@ otrs::~otrs()
 }
 
 void otrs::on_connected() {
+    ///из модуля проверки тикетов получен сигнал об успешном подключении к сайту ОТРС
     QLabel *lbl = new QLabel(tr("Connected"));
     ui_bar->addWidget(lbl);
 }
 
 void otrs::on_newTicket(Ticket ticket) {
+    ///из модуля проверки получен сигнал с новым тикетом
+
     int row = ui_tableWidget->rowCount();
     ui_tableWidget->setRowCount(row+1);
 
@@ -180,6 +183,7 @@ void otrs::on_newTicket(Ticket ticket) {
 }
 
 void otrs::on_delTicket(Ticket ticket) {
+    ///из модуля проверки получен сигнал об удалении тикета
     int ro = ui_tableWidget->rowCount();
     for (int i = 0; i<ro; i++) {
         if (ui_tableWidget->item(i, 0)->text().toInt() == ticket.id)
@@ -193,6 +197,7 @@ void otrs::on_delTicket(Ticket ticket) {
 }
 
 void otrs::updateTicket(Ticket ticket) {
+    ///из модуля проверки получен сигнал с новыми данными по тикету
     QString text;
     QString m1 = tr("in base");
     QString m2 = tr("NOT in BASE");
@@ -218,6 +223,8 @@ void otrs::updateTicket(Ticket ticket) {
 }
 
 void otrs::on_clipboard_changed() {
+    ///следим за изменениями в буфере обмена.
+    ///Если содержимое буфера совпадает с текстом некоторой ячейки, выделяется вся строка
     QClipboard *clipboard = QApplication::clipboard();
     QString originalText = clipboard->text();
     QString supertxt;
@@ -240,21 +247,23 @@ void otrs::on_clipboard_changed() {
         if (action_tray->isChecked())
             icon->showMessage("OTRS", supertxt);
     }
-
 }
 
 
 void otrs::on_action_exit() {
+    ///выходим из программы
     close();
 }
 
 
 void otrs::on_logUpdate(QString txt) {
+    ///из модуля проверки получен сигнал с отладочным сообщением
     logView->insertHtml(txt + "<br>\n");
     logView->scrollToAnchor(txt);
 }
 
 void otrs::on_action_log(bool status) {
+    ///включает-выключает отображение логов
     if (status) {
         logView->show();
         tickView->hide();
@@ -264,6 +273,8 @@ void otrs::on_action_log(bool status) {
 }
 
 void otrs::on_mouse_click(int x, int y) {
+    ///если пользователь щелкнул на первой колонке, вывести тело тикета
+
     if (y) {
         tickView->setVisible(false);
         return;

@@ -90,8 +90,6 @@ Checker::Checker (QObject *parent)
     }
     file->close();
 
-
-
     billConnection = new BillingModule(billConfig);
     connect(billConnection, SIGNAL(describe_by_email_signal(Ticket)),
             this, SLOT(work_on_bill_ticket_done(Ticket)));
@@ -99,21 +97,21 @@ Checker::Checker (QObject *parent)
             this, SLOT(on_logTxt(QString)));
 
     timeChecker = new TimeChecker(otrsConfig, mysqlconfig);
-
-
 }
 
 void Checker::run() {
+    ///запускаем таймер не раз в период, а на один раз, т.к. неизвестно время возврата из http-request
+
     if (stopValue && blockValue) {
         blockValue = 0;
-
-        //запускаем таймер не раз в период, а на один раз, т.к. неизвестно время возврата из http-request
         QTimer::singleShot(2000, this, SLOT(check_new_tickets()));
 
     }
 }
 
 void Checker::connection_ready(int status) {
+    ///получен ответ из ОТРС об установлении соединения
+
     if (status == 1) {
         otrsConnected = true;
         qDebug() << "connected";
@@ -126,8 +124,8 @@ void Checker::connection_ready(int status) {
 }
 
 void Checker::check_new_tickets() {
-    //static int i = 0;
-    //qDebug() << "checked " << i++;
+    ///отправляем запрос в ОТРС на получение очередной страницы со списком тикетов
+
     blockValue = 1;
 
     if (!otrsConnected) {
@@ -142,14 +140,14 @@ void Checker::check_new_tickets() {
 
     } else {
         //выполняется, если ранее было установлено соединение
-        //QStringList tList =
         otrsConnection->get_current_tickets();
     }
 
 }
 
 void Checker::new_tickets_list_ready(QStringList lst) {
-    //qDebug() << lst;
+    ///получен ответ из ОТРС со списком ID тикетов в текущей странице
+
     Ticket ticket;
     ticket.isChecked = false;
 
@@ -159,14 +157,11 @@ void Checker::new_tickets_list_ready(QStringList lst) {
         tmpList << ticket;
     }
 
-    //curList = newList;
     curList << tmpList;
-    //qDebug() << "0New list count " << curList.count() << tmpList.count() << lst.count();
 
     if (otrsConnection->isAllPages()) {
      //если проверены все страницы
         newList = curList;
-        //qDebug() << "1New tickets count: " << newList.count();
 
         //из нового (свежего) списка убрать те, которые уже есть в старом
         for (int i = 0; i<oldList.count(); i++) {
@@ -180,9 +175,6 @@ void Checker::new_tickets_list_ready(QStringList lst) {
                 }
             }
         }
-
-        //qDebug() << "2New list count " << curList.count() << oldList.count();
-
 
         //из старого списка убрать те, которых уже нет в новом
         if (!workInBill) {
@@ -204,8 +196,6 @@ void Checker::new_tickets_list_ready(QStringList lst) {
             }
 
         }
-        //qDebug() << "3New tickets count: " << newList.count();
-
         if (newList.count()) {
             currentTicket = 0;
             //new_ticketes_checked();
@@ -215,23 +205,20 @@ void Checker::new_tickets_list_ready(QStringList lst) {
         }
 
     } else {
-        //curList.clear();
+        //если проверены еще не все страницы
         this->run();
     }
-
-
-
-
 
 }
 
 void Checker::work_on_ticket_progress() {
+    ///начинаем запрос на подробное описание тикета
     currentId = newList.at(currentTicket).id;
     otrsConnection->describe_ticket(currentId);
 }
 
 void Checker::work_on_ticket_done(Ticket ticket) {
-
+    ///получен ответ с подробным описанием тикета
     ticket.id =currentId;
     newList[currentTicket] = ticket;
 
@@ -248,18 +235,10 @@ void Checker::work_on_ticket_done(Ticket ticket) {
     else {
       new_ticketes_checked();
     }
-
-
 }
 
-
-
 void Checker::new_ticketes_checked() {
-    //timeChecker->getLastTime(645757);//645757
-    //timeChecker->getLastTime(667921);//645757
-    //timeChecker->moveTicket(667930);
-
-
+    ///вызывается после обработки всех тикетов
 
     //и наконец - в старый список добавить новые тикеты
     oldList += curList;
@@ -281,6 +260,8 @@ void Checker::stop() {
 
 
 void Checker::work_on_bill_ticket() {
+    ///отправляем запросы в биллинг на описание тикета
+
     if (workInBill) return;
     int j = 1;
     for (int i = 0; i<billList.count(); i++) {
@@ -302,6 +283,8 @@ void Checker::work_on_bill_ticket() {
 }
 
 void Checker::work_on_bill_ticket_done(Ticket ticket) {
+    ///получен ответ из биллинга с подробностями
+
     for (int i = 0; i<billList.count(); i++) {
         if (billList[i].mail == ticket.mail) {
             billList[i].isChecked = true;
@@ -320,5 +303,7 @@ void Checker::work_on_bill_ticket_done(Ticket ticket) {
 }
 
 void Checker::on_logTxt(QString txt) {
+    ///используется для логирования в главном окне програмы
+
     emit logText(txt);
 }

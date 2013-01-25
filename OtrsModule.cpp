@@ -3,6 +3,7 @@
 
 
 OtrsModule::OtrsModule (LoginConfig cfg) {
+    ///подключаемся к ОТРС (вводим логин-пароль на странице для входа)
 
     QString postData = cfg.post;
     postData.replace("{User}", cfg.username);
@@ -33,7 +34,7 @@ OtrsModule::~OtrsModule() {
 }
 
 void OtrsModule::connected(QNetworkReply* rpl) {
-
+    ///получен ответ после попытки авторизации
     QByteArray page = rpl->readAll();
 
     QString pg = page;
@@ -41,27 +42,25 @@ void OtrsModule::connected(QNetworkReply* rpl) {
     if (pg.contains("302 Moved")) {
         //типа когда успешно залогинимся, поменяем
         emit connection_established(1);
-        qDebug() << "Connected OK";
         disconnect(SIGNAL(finished(QNetworkReply*)));
-
     } else {
         emit connection_established(0);
     }
-
 }
 
-
 void OtrsModule::get_current_tickets() {
+    ///получен запрос сверху на формирование списка тикетов с текущей страницы
+    ///перенаправляем в ОТРС
     connect(this, SIGNAL(finished(QNetworkReply*)),
                 this, SLOT(current_tickets_ready(QNetworkReply*)));
 
     QString url = requestUrl;
     url.replace("{Page}", QString::number(otrsCurrentPage));
     this->get(QNetworkRequest(QUrl(url)));
-
 }
 
 void OtrsModule::current_tickets_ready(QNetworkReply *rpl) {
+    ///из ОТРС загружена страница со списком тикетов
     disconnect(SIGNAL(finished(QNetworkReply*)));
     QByteArray page = rpl->readAll();
     QString pg = page;
@@ -88,43 +87,11 @@ void OtrsModule::current_tickets_ready(QNetworkReply *rpl) {
         allPages = true;
     }
 
-
-//    QString line;
-//    tickets.clear();
-//    bool currPage = true;
-//    QString nextUrl;
-
-
-//    while (!rpl->atEnd()) {
-//        line = rpl->readLine();
-//        if (line.contains("Action=AgentTicketZoom&TicketID=") && line.contains("onmouseover")) {
-//            tickets << line.split("TicketID=").at(1).split("\"  onmouseover").at(0);
-//       }
-
-
-//        if (currPage) {
-//            if (line.contains(nextUrl)) {
-//                qDebug() << "Next url: " << nextUrl;
-//                //qDebug() << 1;
-//                currPage = false;
-//                allPages = false;
-//                //если содержится ссылка на следующую страницу - прибавляем номер страницы, иначе 1
-//            } else {
-//                qDebug() << "OLD url: " << nextUrl;
-//                otrsCurrentPage = 1;
-//            }
-//        }
-
-//    }
-//    if (currPage)
-//        allPages = true;
-
     emit ticket_list_ready(tickets);
-
 }
 
 void OtrsModule::describe_ticket(int id) {
-    //qDebug() << "Desc id " << id;
+    ///сверху получен запрос на подробное описание тикета. Перенаправляем в ОТРС
     connect(this, SIGNAL(finished(QNetworkReply*)),
                 this, SLOT(ticket_described(QNetworkReply*)));
     QString url = zoomUrl + QString::number(id);
@@ -132,6 +99,7 @@ void OtrsModule::describe_ticket(int id) {
 }
 
 void OtrsModule::ticket_described(QNetworkReply *rpl) {
+    ///из ОТРС загружена страница "Подробно" по тикету
     disconnect(SIGNAL(finished(QNetworkReply*)));
     Ticket ticket;
     ticket.id = 777;
@@ -140,7 +108,6 @@ void OtrsModule::ticket_described(QNetworkReply *rpl) {
     ticket.body = "No message";
 
     QByteArray page = rpl->readAll();
-
     QString pg = page;
 
     //определяем адрес отправителя
@@ -162,13 +129,12 @@ void OtrsModule::ticket_described(QNetworkReply *rpl) {
     //определяем хост тикета, если возможно
     pg = page;
     //тут надо бы с регулярными выражениями, чтоб искало и в скобках, и в пробелах
-//    QString host = pg.remove(0, pg.indexOf(QRegExp("[( ]host")));
-//    host = host.remove(host.indexOf(QRegExp("[ )]")), host.length()-1);
+    //    QString host = pg.remove(0, pg.indexOf(QRegExp("[( ]host")));
+    //    host = host.remove(host.indexOf(QRegExp("[ )]")), host.length()-1);
     QString host = pg.remove(0, pg.indexOf("(host")+1);
     host = host.remove(host.indexOf(")"), host.length()-1);
     if (host.length() > 12) host = "n/a";
     ticket.host = host;
-    //qDebug() << "Host: " << ticket.host;
 
     //определяем сообщение в теле тикета
     QTextCodec *codec = QTextCodec::codecForName("UTF-8");
@@ -183,12 +149,11 @@ void OtrsModule::ticket_described(QNetworkReply *rpl) {
     pg.remove(0, pg.indexOf("\n"));
     pg.remove(pg.indexOf("</td>")-1, pg.length()-1);
     ticket.subject = pg.trimmed();
-    //qDebug() << "subject: " << ticket.subject;
 
     emit ticket_described_signal(ticket);
 }
 
 bool OtrsModule::isAllPages() {
-    //qDebug() << "All pages " << allPages;
+    ///возвращает ИСТИНУ, если были просмотрены все страницы
     return allPages;
 }
