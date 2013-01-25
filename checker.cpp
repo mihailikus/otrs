@@ -1,3 +1,5 @@
+#define UPDATE_PERIOD 3 //период обновления в секундах
+
 #include "checker.h"
 
 
@@ -104,7 +106,7 @@ void Checker::run() {
 
     if (stopValue && blockValue) {
         blockValue = 0;
-        QTimer::singleShot(2000, this, SLOT(check_new_tickets()));
+        QTimer::singleShot(UPDATE_PERIOD*1000, this, SLOT(check_new_tickets()));
 
     }
 }
@@ -167,8 +169,8 @@ void Checker::new_tickets_list_ready(QStringList lst) {
         for (int i = 0; i<oldList.count(); i++) {
             int c = newList.count();
             for (int j = 0; j<c; j++) {
-                //qDebug() << "i j c " << i << j << c << oldList.at(i).id << newList.at(j).id;
                 if (oldList.at(i).id == newList.at(j).id) {
+                    timeChecker->getLastTime(oldList[i].id);
                     newList.remove(j);
                     j--;
                     c--;

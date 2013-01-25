@@ -23,6 +23,7 @@ TimeChecker::TimeChecker (LoginConfig otrs, MysqlConfig sql) :
     } else {
         this->db_is_ready = false;
     }
+    isWorking = false;
 }
 
 void TimeChecker::getLastTime() {
@@ -35,6 +36,11 @@ void TimeChecker::getLastTime() {
     if (!tickets.count()) {
         return;
     }
+
+    if (isWorking)
+        return;
+
+    isWorking = true;
 
     currentID = tickets.first();
 
@@ -114,6 +120,7 @@ void TimeChecker::lastTimeReady(QNetworkReply * rpl) {
         query.replace("{delta}", QString::number(delta));
         db.exec(query);
     }
+    isWorking = false;
     getLastTime();
 }
 

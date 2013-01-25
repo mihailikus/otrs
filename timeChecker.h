@@ -31,6 +31,8 @@ private:
 
     int currentID;
 
+    bool isWorking;
+
     QList<int> tickets;
 
 private slots:
