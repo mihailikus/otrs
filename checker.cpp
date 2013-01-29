@@ -265,6 +265,7 @@ void Checker::work_on_bill_ticket() {
     ///отправляем запросы в биллинг на описание тикета
 
     if (workInBill) return;
+    if (!billConnection->is_connected()) return;
     int j = 1;
     for (int i = 0; i<billList.count(); i++) {
         j++;
@@ -277,6 +278,7 @@ void Checker::work_on_bill_ticket() {
             } else {
                 billConnection->describe_ticket_by_email(billList[i]);
             }
+
         }
     }
     if (j == billList.count())

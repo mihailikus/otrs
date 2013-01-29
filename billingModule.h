@@ -28,11 +28,14 @@ private:
     QString host;
     QString id;
 
+    bool isConnected;
+
     int describeMethod;  //определяет, какая процедура запущена для идентификации
 
 public slots:
     void describe_ticket_by_email(Ticket ticket);
     void describe_ticket_by_host(Ticket ticket);
+    bool is_connected();
 
 
 signals:

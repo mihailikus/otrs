@@ -21,6 +21,7 @@ BillingModule::BillingModule (LoginConfig cfg) {
 
     connect(this, SIGNAL(finished(QNetworkReply*)),
                 this, SLOT(connected(QNetworkReply*)));
+    isConnected = false;
    this->get(request);
 }
 
@@ -32,11 +33,16 @@ void BillingModule::connected(QNetworkReply * rpl) {
     ///получен ответ после запроса на подключение. Требуется доработать проверку
 
     emit logTxt(tr("Billing connected: "));
+    qDebug() << "Bill: " << rpl->url();
     disconnect(SIGNAL(finished(QNetworkReply*)));
+    isConnected = true;
 }
 
 void BillingModule::describe_ticket_by_email(Ticket ticket) {
     ///получен запрос на поиск аккаунта по почтовому адресу
+    if (!isConnected)
+        return;
+
     describeMethod = 1;
     QString url1 = url;
     host = ticket.host;
@@ -53,6 +59,9 @@ void BillingModule::describe_ticket_by_email(Ticket ticket) {
 
 void BillingModule::describe_ticket_by_host(Ticket ticket) {
     ///получен запрос на поиск аккаунта по имени host****
+    if (!isConnected)
+        return;
+
     describeMethod = 0;
     QString url1 = url2;
     host = ticket.host;
@@ -111,4 +120,8 @@ void BillingModule::describe_by_email_finished(QNetworkReply *rpl) {
 
     }
     emit describe_by_email_signal(ticket);
+}
+
+bool BillingModule::is_connected() {
+    return isConnected;
 }
