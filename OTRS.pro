@@ -20,7 +20,8 @@ SOURCES += main.cpp\
     checker.cpp \
     OtrsModule.cpp \
     billingModule.cpp \
-    timeChecker.cpp
+    timeChecker.cpp \
+    OtrsWorker.cpp
 
 HEADERS  += otrs.h \
     ticket.h \
@@ -29,7 +30,8 @@ HEADERS  += otrs.h \
     OtrsModule.h \
     billingModule.h \
     timeChecker.h \
-    mysql_config.h
+    mysql_config.h \
+    OtrsWorker.h
 
 FORMS    +=
 

@@ -13,6 +13,7 @@ OtrsModule::OtrsModule (LoginConfig cfg) {
     zoomUrl    = cfg.zoom;
 
     otrsCurrentPage = 1;
+    isConnected = false;
 
     allPages = false;
 
@@ -42,10 +43,15 @@ void OtrsModule::connected(QNetworkReply* rpl) {
     if (pg.contains("302 Moved")) {
         //типа когда успешно залогинимся, поменяем
         emit connection_established(1);
+        isConnected = true;
         disconnect(SIGNAL(finished(QNetworkReply*)));
     } else {
         emit connection_established(0);
     }
+}
+
+bool OtrsModule::is_connected() {
+    return isConnected;
 }
 
 void OtrsModule::get_current_tickets() {

@@ -11,13 +11,88 @@ otrs::otrs(QWidget *parent) :
     tickView =new QTextBrowser();
 
     make_actions();
-    make_menu();
+    make_menus();
     make_tool_bar();
 
     make_central_widget();
     make_status_bar();
 
-    otrsChecker = new Checker(this);
+    //читаем файл конфигурации config.ini
+    QFile *file = new QFile("./config.ini");
+    if (!file->open(QFile::ReadOnly)) {
+        //emit logText(tr("Cannot open config file config.ini"));
+        return;
+    }
+
+    QByteArray line;
+    QString params;
+    QString value;
+    int i = 0;
+    while (!file->atEnd()) {
+        line = file->readLine();
+        if (line.at(0) != '#') {
+            params = line;
+            params.remove(0, params.indexOf("=")+1);
+            params = params.trimmed();
+
+            value = line;
+            value.remove(value.indexOf("="), value.length()-1);
+            value = value.trimmed();
+
+            if (value == "otrs.username")
+                otrsConfig.username = params;
+
+            if (value == "otrs.url")
+                otrsConfig.uri = params;
+
+            if (value == "otrs.url2")
+                otrsConfig.uri2 = params;
+
+            if (value == "otrs.post")
+                otrsConfig.post = params;
+
+            if (value == "otrs.zoom")
+                otrsConfig.zoom = params;
+
+            if (value == "otrs.hist")
+                otrsConfig.hist = params;
+
+            if (value == "bill.url")
+                billConfig.uri = params;
+
+            if (value == "bill.url2")
+                billConfig.uri2 = params;
+
+            if (value == "otrs.userpass")
+                otrsConfig.userpass = params;
+
+            if (value == "bill.username")
+                billConfig.username = params;
+
+            if (value == "bill.userpass")
+                billConfig.userpass = params;
+
+            if (value == "dbHost")
+                mysqlconfig.dbHost = params;
+
+            if (value == "dbName")
+                mysqlconfig.dbName = params;
+
+            if (value == "dbUser")
+                mysqlconfig.dbUser = params;
+
+            if (value == "dbPass")
+                mysqlconfig.dbPass = params;
+
+            if (value == "table")
+                mysqlconfig.table = params;
+
+        }
+    }
+    file->close();
+
+
+    otrsChecker = new Checker(otrsConfig, billConfig, mysqlconfig, this);
     connect(otrsChecker, SIGNAL(connected_success()), SLOT(on_connected()));
     connect(otrsChecker, SIGNAL(new_ticket(Ticket)), SLOT(on_newTicket(Ticket)));
     connect(otrsChecker, SIGNAL(remove_ticket(Ticket)), SLOT(on_delTicket(Ticket)));
@@ -32,6 +107,8 @@ otrs::otrs(QWidget *parent) :
     icon->show();
 
     otrsChecker->run();
+
+    worker = new OtrsWorker(otrsConfig);
 
 }
 
@@ -57,14 +134,30 @@ void otrs::make_actions() {
     action_tray->setShortcut(QKeySequence("Ctrl+T"));
     action_tray->setCheckable(true);
     action_tray->setChecked(false);
+
+    actionDel = new QAction(tr("Close ticket"), this);
+    connect(actionDel, SIGNAL(triggered()), SLOT(on_actionDel()));
+
+    actionSpam = new QAction(tr("Move to spam"), this);
+    connect(actionSpam, SIGNAL(triggered()), SLOT(on_actionSpam()));
+
+    actionAnswer = new QAction(tr("Answer to ticket"), this);
+    connect(actionAnswer, SIGNAL(triggered()), SLOT(on_actionAnswer()));
+
 }
 
-void otrs::make_menu() {
+void otrs::make_menus() {
     ///привязываем действия к главному меню
     menuBar = new QMenuBar();
     menu = menuBar->addMenu(tr("File"));
     menu->addAction(action_exit);
     this->setMenuBar(menuBar);
+
+    //контекстное меню
+    contextMenu = new QMenu();
+    contextMenu->addAction(actionDel);
+    contextMenu->addAction(actionSpam);
+    contextMenu->addAction(actionAnswer);
 }
 
 void otrs::make_tool_bar() {
@@ -82,7 +175,12 @@ void otrs::make_central_widget() {
     ///создаем центральный виджет - таблицу, куда будут попадать тикеты
 
     ui_tableWidget = new QTableWidget(0, 6);
-    connect(ui_tableWidget, SIGNAL(cellClicked(int,int)), this, SLOT(on_mouse_click(int, int)));
+    connect(ui_tableWidget, SIGNAL(cellClicked(int,int)),
+            this, SLOT(on_mouse_click(int, int)));
+    connect(ui_tableWidget, SIGNAL(customContextMenuRequested(QPoint)),
+            this, SLOT(on_context_menu(QPoint )));
+
+    ui_tableWidget->setContextMenuPolicy(Qt::CustomContextMenu);
 
     mainLayout = new QGridLayout();
     mainLayout->addWidget(ui_tableWidget, 0, 0);
@@ -275,21 +373,48 @@ void otrs::on_action_log(bool status) {
 void otrs::on_mouse_click(int x, int y) {
     ///если пользователь щелкнул на первой колонке, вывести тело тикета
 
-    if (y) {
-        tickView->setVisible(false);
-        return;
-    }
+//    if (y) {
+//        //tickView->setVisible(false);
+//        return;
+//    }
 
     on_action_log(false);
     action_log->setChecked(false);
 
     tickView->setVisible(true);
 
-    int id = ui_tableWidget->item(x, y)->text().toInt();
+    int id = ui_tableWidget->item(x, 0)->text().toInt();
     QString txt;
     txt = "<b>" + ticketList[id].subject + "</b><br>\n";
     txt += ticketList[id].body;
-   tickView->clear();
+    tickView->clear();
     tickView->insertHtml(txt);
+
+}
+
+void otrs::on_context_menu(QPoint point) {
+
+    QTableWidgetItem *item = ui_tableWidget->itemAt(point);
+    contextId = ui_tableWidget->item(item->row(), 0)->text().toInt();
+
+
+    //contextMNU->exec(TABLE_VIEW->mapToGlobal(pos));
+
+    contextMenu->exec(ui_tableWidget->mapToGlobal(point));
+
+}
+
+void otrs::on_actionDel() {
+    worker->delTicket(contextId);
+
+}
+
+void otrs::on_actionSpam() {
+    worker->spamTicket(contextId);
+
+}
+
+void otrs::on_actionAnswer() {
+    worker->answTicket(contextId);
 
 }

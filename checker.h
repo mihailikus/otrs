@@ -4,7 +4,6 @@
 #include <QObject>
 #include <QNetworkAccessManager>
 #include <QVector>
-#include <QFile>
 #include "ticket.h"
 #include "login_config.h"
 #include "mysql_config.h"
@@ -42,7 +41,7 @@ private:
 
 
 public:
-    Checker (QObject *parent);
+    Checker (LoginConfig otrs, LoginConfig bill, MysqlConfig sql, QObject *parent);
     ~Checker();
 
     void run();

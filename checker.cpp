@@ -3,10 +3,14 @@
 #include "checker.h"
 
 
-Checker::Checker (QObject *parent)
+Checker::Checker (LoginConfig otrs, LoginConfig bill, MysqlConfig sql, QObject *parent)
     : QObject (parent = 0)
 
 {
+    otrsConfig = otrs;
+    billConfig = bill;
+    mysqlconfig = sql;
+
     stopValue = 1;
     blockValue = 1;
 
@@ -17,80 +21,6 @@ Checker::Checker (QObject *parent)
     oldList.clear();
     curList.clear();
     newList.clear();
-
-    //читаем файл конфигурации config.ini
-    QFile *file = new QFile("./config.ini");
-    if (!file->open(QFile::ReadOnly)) {
-        emit logText(tr("Cannot open config file config.ini"));
-        return;
-    }
-
-    QByteArray line;
-    QString params;
-    QString value;
-    int i = 0;
-    while (!file->atEnd()) {
-        line = file->readLine();
-        if (line.at(0) != '#') {
-            params = line;
-            params.remove(0, params.indexOf("=")+1);
-            params = params.trimmed();
-
-            value = line;
-            value.remove(value.indexOf("="), value.length()-1);
-            value = value.trimmed();
-
-            if (value == "otrs.username")
-                otrsConfig.username = params;
-
-            if (value == "otrs.url")
-                otrsConfig.uri = params;
-
-            if (value == "otrs.url2")
-                otrsConfig.uri2 = params;
-
-            if (value == "otrs.post")
-                otrsConfig.post = params;
-
-            if (value == "otrs.zoom")
-                otrsConfig.zoom = params;
-
-            if (value == "otrs.hist")
-                otrsConfig.hist = params;
-
-            if (value == "bill.url")
-                billConfig.uri = params;
-
-            if (value == "bill.url2")
-                billConfig.uri2 = params;
-
-            if (value == "otrs.userpass")
-                otrsConfig.userpass = params;
-
-            if (value == "bill.username")
-                billConfig.username = params;
-
-            if (value == "bill.userpass")
-                billConfig.userpass = params;
-
-            if (value == "dbHost")
-                mysqlconfig.dbHost = params;
-
-            if (value == "dbName")
-                mysqlconfig.dbName = params;
-
-            if (value == "dbUser")
-                mysqlconfig.dbUser = params;
-
-            if (value == "dbPass")
-                mysqlconfig.dbPass = params;
-
-            if (value == "table")
-                mysqlconfig.table = params;
-
-        }
-    }
-    file->close();
 
     billConnection = new BillingModule(billConfig);
     connect(billConnection, SIGNAL(describe_by_email_signal(Ticket)),

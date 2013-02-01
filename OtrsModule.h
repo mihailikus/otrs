@@ -15,6 +15,7 @@ public:
     OtrsModule (LoginConfig cfg);
     ~OtrsModule ();
     bool isAllPages();
+    bool is_connected();
 
 
 private:
@@ -23,6 +24,7 @@ private:
     QString requestUrl;
     QString zoomUrl;
     bool allPages;
+    bool isConnected;
 
 
 private slots:
