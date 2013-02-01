@@ -8,3 +8,34 @@ otrs.userpass=pass
 bill.username=username
 bill.userpass=pass
 
+#настройки для подключения к базе данных
+dbHost = localhost
+dbName = test
+dbUser = ticket
+dbPass = pass
+table  = tickets
+
+##################################################
+#страница для входа
+otrs.url  = http://77.234.201.87/otrs/index.pl
+
+#параметры в ПОСТ-запросе для авторизации
+otrs.post = Action=Login&RequestedURL=&Lang=ru&TimeOffset=-240&User={User}&Password={Password}
+
+#ссылка для подростей по тикету
+otrs.zoom = http://77.234.201.87/otrs/index.pl?Action=AgentTicketZoom&TicketID=
+
+#ссылка для просмотра истории по тикету
+otrs.hist = http://77.234.201.87/otrs/index.pl?Action=AgentTicketHistory&TicketID=
+
+#ссылка на следующую страницу в ОТРС
+otrs.url2 = http://77.234.201.87/otrs/index.pl?Action=AgentTicketQueue&QueueID=1&View=&SortBy=Age&OrderBy=Up&StartWindow=0&StartHit={Page}
+
+
+#страницы для поиска в биллинге, используя почтовый адрес или имя хоста
+bill.url  = http://{User}:{Password}@billing.hostland.ru/info/public/index.php?account=&something={email}&status=1/
+bill.url2 = http://{User}:{Password}@billing.hostland.ru/info/public/index.php?account={host}&something=&status=1
+
+
+
+
