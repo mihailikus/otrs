@@ -65,9 +65,9 @@ private:
 
     //--------------
     QMenu *contextMenu;
-    QAction *actionDel;
     QAction *actionSpam;
     QAction *actionAnswer;
+    QAction *actionClose;
     int      contextId;
 
     QMap<int, Ticket> ticketList;
@@ -92,9 +92,9 @@ private slots:
     void on_mouse_click(int x, int y);
 
     void on_context_menu(QPoint point);
-    void on_actionDel();
     void on_actionSpam();
     void on_actionAnswer();
+    void on_actionClose();
 
 
 };

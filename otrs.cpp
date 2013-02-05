@@ -135,14 +135,14 @@ void otrs::make_actions() {
     action_tray->setCheckable(true);
     action_tray->setChecked(false);
 
-    actionDel = new QAction(tr("Close ticket"), this);
-    connect(actionDel, SIGNAL(triggered()), SLOT(on_actionDel()));
-
     actionSpam = new QAction(tr("Move to spam"), this);
     connect(actionSpam, SIGNAL(triggered()), SLOT(on_actionSpam()));
 
     actionAnswer = new QAction(tr("Answer to ticket"), this);
     connect(actionAnswer, SIGNAL(triggered()), SLOT(on_actionAnswer()));
+
+    actionClose = new QAction(tr("Close ticket"), this);
+    connect(actionClose, SIGNAL(triggered()), SLOT(on_actionClose()));
 
 }
 
@@ -155,9 +155,13 @@ void otrs::make_menus() {
 
     //контекстное меню
     contextMenu = new QMenu();
-    contextMenu->addAction(actionDel);
-    contextMenu->addAction(actionSpam);
+    contextMenu->addAction(actionClose);
     contextMenu->addAction(actionAnswer);
+    contextMenu->addSeparator();
+    contextMenu->addSeparator();
+    contextMenu->addSeparator();
+    contextMenu->addAction(actionSpam);
+
 }
 
 void otrs::make_tool_bar() {
@@ -404,11 +408,6 @@ void otrs::on_context_menu(QPoint point) {
 
 }
 
-void otrs::on_actionDel() {
-    worker->delTicket(contextId);
-
-}
-
 void otrs::on_actionSpam() {
     worker->spamTicket(contextId);
 
@@ -417,4 +416,8 @@ void otrs::on_actionSpam() {
 void otrs::on_actionAnswer() {
     worker->answTicket(contextId);
 
+}
+
+void otrs::on_actionClose() {
+    worker->closeTicket(contextId, "OK");
 }
