@@ -109,6 +109,7 @@ otrs::otrs(QWidget *parent) :
     otrsChecker->run();
 
     worker = new OtrsWorker(otrsConfig);
+    connect(worker, SIGNAL(unblocActions(bool)), this, SLOT(blockActions(bool)));
 
 }
 
@@ -410,14 +411,21 @@ void otrs::on_context_menu(QPoint point) {
 
 void otrs::on_actionSpam() {
     worker->spamTicket(contextId);
-
+    blockActions(false);
 }
 
 void otrs::on_actionAnswer() {
     worker->answTicket(contextId);
-
+    blockActions(false);
 }
 
 void otrs::on_actionClose() {
     worker->closeTicket(contextId, "OK");
+    blockActions(false);
+}
+
+void otrs::blockActions(bool status) {
+    actionAnswer->setEnabled(status);
+    actionClose->setEnabled(status);
+    actionSpam->setEnabled(status);
 }

@@ -95,6 +95,7 @@ private slots:
     void on_actionSpam();
     void on_actionAnswer();
     void on_actionClose();
+    void blockActions(bool status);
 
 
 };

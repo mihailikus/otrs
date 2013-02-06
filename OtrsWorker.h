@@ -40,6 +40,10 @@ private slots:
 
     void work_ready(QNetworkReply *rpl);
 
+signals:
+
+    void unblocActions(bool status);
+
 
 
 

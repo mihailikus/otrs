@@ -151,11 +151,12 @@ void OtrsWorker::close_ticket(int Id, QString challange, QString formID) {
 void OtrsWorker::work_ready(QNetworkReply *rpl) {
     disconnect(SIGNAL(finished(QNetworkReply*)));
 
-    QByteArray page = rpl->readAll();
-    QString pg = page;
+    //QByteArray page = rpl->readAll();
+    //QString pg = page;
 
-    qDebug() << pg;
+    //qDebug() << pg;
 
     tickets.removeFirst();
     isWorking = false;
+    emit unblocActions(true);
 }
