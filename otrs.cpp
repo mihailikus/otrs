@@ -400,11 +400,10 @@ void otrs::on_mouse_click(int x, int y) {
 void otrs::on_context_menu(QPoint point) {
 
     QTableWidgetItem *item = ui_tableWidget->itemAt(point);
+    if (!item)
+        return;
+
     contextId = ui_tableWidget->item(item->row(), 0)->text().toInt();
-
-
-    //contextMNU->exec(TABLE_VIEW->mapToGlobal(pos));
-
     contextMenu->exec(ui_tableWidget->mapToGlobal(point));
 
 }
