@@ -156,12 +156,12 @@ void otrs::make_menus() {
 
     //контекстное меню
     contextMenu = new QMenu();
-    contextMenu->addAction(actionClose);
+    //contextMenu->addAction(actionClose);
     contextMenu->addAction(actionAnswer);
     contextMenu->addSeparator();
     contextMenu->addSeparator();
     contextMenu->addSeparator();
-    contextMenu->addAction(actionSpam);
+    //contextMenu->addAction(actionSpam);
 
 }
 
@@ -323,6 +323,13 @@ void otrs::updateTicket(Ticket ticket) {
             ui_tableWidget->setItem(i, 6, itemServer);
          }
     }
+    int id = ticket.id;
+    ticketList[id].articleID = ticket.articleID;
+    ticketList[id].money = ticket.money,
+    ticketList[id].server = ticket.server;
+    ticketList[id].host = ticket.host;
+    ticketList[id].isMailinBase = ticket.isMailinBase;
+
 }
 
 void otrs::on_clipboard_changed() {
@@ -376,12 +383,7 @@ void otrs::on_action_log(bool status) {
 }
 
 void otrs::on_mouse_click(int x, int y) {
-    ///если пользователь щелкнул на первой колонке, вывести тело тикета
 
-//    if (y) {
-//        //tickView->setVisible(false);
-//        return;
-//    }
 
     on_action_log(false);
     action_log->setChecked(false);
@@ -390,7 +392,7 @@ void otrs::on_mouse_click(int x, int y) {
 
     int id = ui_tableWidget->item(x, 0)->text().toInt();
     QString txt;
-    txt = "<b>" + ticketList[id].subject + "</b><br>\n";
+    txt = "<b>" + ticketList[id].subject + "</b><br>\n<br>\n";
     txt += ticketList[id].body;
     tickView->clear();
     tickView->insertHtml(txt);
@@ -403,7 +405,10 @@ void otrs::on_context_menu(QPoint point) {
     if (!item)
         return;
 
-    contextId = ui_tableWidget->item(item->row(), 0)->text().toInt();
+    contextId      = ui_tableWidget->item(item->row(), 0)->text().toInt();
+    contextMailto  = ticketList[contextId].mail;
+    contextArticle = 0; //ui_tableWidget->item(item->row(), 0)->text().toInt();
+
     contextMenu->exec(ui_tableWidget->mapToGlobal(point));
 
 }
@@ -414,8 +419,18 @@ void otrs::on_actionSpam() {
 }
 
 void otrs::on_actionAnswer() {
-    worker->answTicket(contextId);
-    blockActions(false);
+    qDebug() << "Ticket parameters: " << ticketList[contextId].articleID <<
+                ticketList[contextId].mail;
+
+    answerForm = new answer(ticketList[contextId]);
+    if (answerForm->exec()) {
+        QString subject = answerForm->getSubject();
+        QString body    = answerForm->getBody();
+        worker->answTicket(contextId, ticketList[contextId].articleID, body, subject, ticketList[contextId].mail);
+        blockActions(false);
+    }
+    delete answerForm;
+
 }
 
 void otrs::on_actionClose() {

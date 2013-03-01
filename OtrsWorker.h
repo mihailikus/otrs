@@ -11,7 +11,7 @@ public:
     OtrsWorker(LoginConfig otrs);
 
     void spamTicket  (int id);
-    void answTicket  (int id);
+    void answTicket  (int id, int articleID, QString body, QString subject, QString mailto);
     void closeTicket (int id, QString text);
 
 
@@ -27,6 +27,10 @@ private:
     QString typeOfWork;
 
     QString currText;
+    QString currTextSubject;
+    int currArt;
+    QString currMail;
+
 
 private slots:
 
@@ -37,6 +41,8 @@ private slots:
     void move_to_spam(int Id, QString challange);
 
     void close_ticket(int Id, QString challange, QString formID);
+
+    void answer_ticker(int Id, QString challange, QString formID);
 
     void work_ready(QNetworkReply *rpl);
 

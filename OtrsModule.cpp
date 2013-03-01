@@ -145,7 +145,7 @@ void OtrsModule::ticket_described(QNetworkReply *rpl) {
     //определяем сообщение в теле тикета
     QTextCodec *codec = QTextCodec::codecForName("UTF-8");
     pg = codec->toUnicode(page);
-    pg.remove(0, pg.indexOf("<div class=\"message\">"));
+    pg.remove(0, pg.indexOf("<div class=\"message\">")+21);
     pg.remove(pg.indexOf("</div"), pg.length()-1);
     ticket.body = pg;
 
@@ -155,6 +155,13 @@ void OtrsModule::ticket_described(QNetworkReply *rpl) {
     pg.remove(0, pg.indexOf("\n"));
     pg.remove(pg.indexOf("</td>")-1, pg.length()-1);
     ticket.subject = pg.trimmed();
+
+    //определяем articleID тикета
+    pg = page;
+    pg.remove(0, pg.indexOf("/otrs/index.pl?Action=AgentTicketCompose&ResponseID"));
+    pg.remove(0, pg.indexOf("ArticleID") + 10);
+    pg.remove(pg.indexOf("\""), pg.length() - 1);
+    ticket.articleID = pg.toInt();
 
     emit ticket_described_signal(ticket);
 }

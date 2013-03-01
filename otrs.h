@@ -21,6 +21,8 @@
 #include "checker.h"
 #include "OtrsWorker.h"
 
+#include "answer.h"
+
 namespace Ui {
 class otrs;
 }
@@ -69,6 +71,8 @@ private:
     QAction *actionAnswer;
     QAction *actionClose;
     int      contextId;
+    QString  contextMailto;
+    int      contextArticle;
 
     QMap<int, Ticket> ticketList;
 
@@ -76,6 +80,9 @@ private:
 
     LoginConfig otrsConfig, billConfig;
     MysqlConfig mysqlconfig;
+
+    //--------------
+    answer * answerForm;
 
 private slots:
     void on_clipboard_changed();

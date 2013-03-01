@@ -22,6 +22,7 @@ public:
 
     QString subject;
     QString body;
+    int     articleID;
 
     bool operator < (const Ticket &other) const
     {

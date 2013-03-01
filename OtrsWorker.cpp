@@ -39,8 +39,28 @@ void OtrsWorker::closeTicket(int id, QString text) {
     }
 }
 
-void OtrsWorker::answTicket(int id) {
+void OtrsWorker::answTicket(int id, int articleID, QString body, QString subject, QString mailto) {
     qDebug() << "Answwer: " << id;
+    tickets << id;
+    currText        = body;
+    currTextSubject = subject;
+    currArt         = articleID;
+    currMail        = mailto;
+    if (!isWorking) {
+        isWorking = true;
+        typeOfWork = "answer";
+        //qDebug() << "The first " << tickets.first() << id;
+        connect(this, SIGNAL(finished(QNetworkReply*)), this, SLOT(ticket_described_for_closing(QNetworkReply*)));
+        //this->describe_ticket(tickets.first());
+
+        QString closeUrl = "http://77.234.201.87/otrs/index.pl?Action=AgentTicketCompose&ResponseID=1&TicketID=";
+        QString url = closeUrl + QString::number(tickets.first());
+
+        this->get(QNetworkRequest(QUrl(url)));
+        qDebug() << "URL: " << url;
+
+        //this->work_ready(0);
+    }
 
 }
 
@@ -93,9 +113,9 @@ void OtrsWorker::ticket_described_for_closing(QNetworkReply *rpl) {
 
     qDebug() << "form ID" << pg << token;
 
-//    if (typeOfWork == "spam") {
-//        move_to_spam(tickets.first(), pg);
-//    }
+    if (typeOfWork == "answer") {
+        answer_ticker(tickets.first(), token, pg);
+    }
     if (typeOfWork == "close") {
         close_ticket(tickets.first(), token, pg);
     }
@@ -112,7 +132,7 @@ void OtrsWorker::move_to_spam(int Id, QString challange) {
     url.replace("{challange}", challange);
     url.replace("{ID}", QString::number(Id));
 
-    qDebug() << "url: " << url;
+    //qDebug() << "url: " << url;
 
     this->get(QNetworkRequest(QUrl(url)));
 }
@@ -121,7 +141,7 @@ void OtrsWorker::close_ticket(int Id, QString challange, QString formID) {
 
     QString Body = currText;
     QString subject = "Close";
-    qDebug() << "Ticket " << Id << formID <<  " will be closed by reason: " << currText;
+    //qDebug() << "Ticket " << Id << formID <<  " will be closed by reason: " << currText;
 
     QString url = "http://77.234.201.87/otrs/index.pl?";
 
@@ -132,10 +152,46 @@ void OtrsWorker::close_ticket(int Id, QString challange, QString formID) {
     postData.replace("{Close}",     subject);
     postData.replace("{Body}",      Body);
 
-
-
     QNetworkRequest request;
     request.setUrl(QUrl(url));
+
+    QByteArray bytes;
+    bytes.append(postData);
+
+    request.setRawHeader("Content-type", "application/x-www-form-urlencoded");
+
+
+    connect(this, SIGNAL(finished(QNetworkReply*)),
+                this, SLOT(work_ready(QNetworkReply*)));
+    this->post(request, bytes);
+}
+
+void OtrsWorker::answer_ticker(int Id, QString challange, QString formID) {
+
+    QString Body = QUrl::toPercentEncoding(currText);
+    currTextSubject = QUrl::toPercentEncoding(currTextSubject);
+
+    //QString subject = "Answer for ticket";
+
+    //qDebug() << "Ticket " << Id << formID <<  " will be answered: " << currText;
+
+    QString url = "http://77.234.201.87/otrs/index.pl?";
+
+    QString postData = "ChallengeToken={challange}&Action=AgentTicketCompose&Subaction=SendEmail&TicketID={ticketID}&Email=&InReplyTo={mailto}&References=m.volkov%40hostland.ru&FormID={formID}&ResponseID=1&ReplyArticleID={article}&From=Hostland+Support+%3Csupport%40hostland.ru%3E&To={mailto}&Cc=&Bcc=&Subject={subject}&Body={Body}&file_upload=&StateID=2&Day=2&Month=3&Year=2013&Hour=12&Minute=14&TimeUnits=";
+    postData.replace("{challange}", challange);
+    postData.replace("{ticketID}",  QString::number(Id));
+    postData.replace("{formID}",    formID);
+    postData.replace("{article}",   QString::number(currArt));
+    postData.replace("{subject}",   currTextSubject);
+    postData.replace("{Body}",      Body);
+    postData.replace("{mailto}",    "m.volkov%40hostland.ru");
+
+    QNetworkRequest request;
+    //url = QUrl::toPercentEncoding(postData);
+    request.setUrl(QUrl(url));
+    //qDebug() << "Post-data: " << postData;
+
+    //qDebug() << "url = " << url << postData;
 
     QByteArray bytes;
     bytes.append(postData);
@@ -147,14 +203,13 @@ void OtrsWorker::close_ticket(int Id, QString challange, QString formID) {
     this->post(request, bytes);
 }
 
-
 void OtrsWorker::work_ready(QNetworkReply *rpl) {
     disconnect(SIGNAL(finished(QNetworkReply*)));
 
-    //QByteArray page = rpl->readAll();
-    //QString pg = page;
+//    QByteArray page = rpl->readAll();
+//    QString pg = page;
 
-    //qDebug() << pg;
+//    qDebug() << pg;
 
     tickets.removeFirst();
     isWorking = false;
