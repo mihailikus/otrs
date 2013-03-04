@@ -169,10 +169,6 @@ void OtrsWorker::answer_ticker(int Id, QString challange, QString formID) {
     currTextSubject = QUrl::toPercentEncoding(currTextSubject);
     currMail        = QUrl::toPercentEncoding(currMail);
 
-    //QString subject = "Answer for ticket";
-
-    //qDebug() << "Ticket " << Id << formID <<  " will be answered: " << currText;
-
     QString url = "http://77.234.201.87/otrs/index.pl?";
 
     QString postData = "ChallengeToken={challange}&Action=AgentTicketCompose&Subaction=SendEmail&TicketID={ticketID}&Email=&InReplyTo={mailto}&References={mailto}&FormID={formID}&ResponseID=1&ReplyArticleID={article}&From=Hostland+Support+%3Csupport%40hostland.ru%3E&To={mailto}&Cc=&Bcc=&Subject={subject}&Body={Body}&file_upload=&StateID=2&Day=2&Month=3&Year=2013&Hour=12&Minute=14&TimeUnits=";
@@ -182,16 +178,11 @@ void OtrsWorker::answer_ticker(int Id, QString challange, QString formID) {
     postData.replace("{article}",   QString::number(currArt));
     postData.replace("{subject}",   currTextSubject);
     postData.replace("{Body}",      Body);
-    //postData.replace("{mailto}",    "m.volkov%40hostland.ru");
     postData.replace("{mailto}",    currMail);
 
 
     QNetworkRequest request;
-    //url = QUrl::toPercentEncoding(postData);
     request.setUrl(QUrl(url));
-    //qDebug() << "Post-data: " << postData;
-
-    //qDebug() << "url = " << url << postData;
 
     QByteArray bytes;
     bytes.append(postData);
@@ -208,7 +199,6 @@ void OtrsWorker::work_ready(QNetworkReply *rpl) {
 
 //    QByteArray page = rpl->readAll();
 //    QString pg = page;
-
 //    qDebug() << pg;
 
     tickets.removeFirst();
