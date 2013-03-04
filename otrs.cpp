@@ -156,12 +156,12 @@ void otrs::make_menus() {
 
     //контекстное меню
     contextMenu = new QMenu();
-    //contextMenu->addAction(actionClose);
+    contextMenu->addAction(actionClose);
     contextMenu->addAction(actionAnswer);
     contextMenu->addSeparator();
     contextMenu->addSeparator();
     contextMenu->addSeparator();
-    //contextMenu->addAction(actionSpam);
+    contextMenu->addAction(actionSpam);
 
 }
 
@@ -419,10 +419,10 @@ void otrs::on_actionSpam() {
 }
 
 void otrs::on_actionAnswer() {
-    qDebug() << "Ticket parameters: " << ticketList[contextId].articleID <<
-                ticketList[contextId].mail;
+//    qDebug() << "Ticket parameters: " << ticketList[contextId].articleID <<
+//                ticketList[contextId].mail;
 
-    answerForm = new answer(ticketList[contextId]);
+    answerForm = new answer(ticketList[contextId], tr("Answer"));
     if (answerForm->exec()) {
         QString subject = answerForm->getSubject();
         QString body    = answerForm->getBody();
@@ -434,8 +434,20 @@ void otrs::on_actionAnswer() {
 }
 
 void otrs::on_actionClose() {
-    worker->closeTicket(contextId, "OK");
-    blockActions(false);
+    //worker->closeTicket(contextId, "OK");
+    Ticket ticket;
+    ticket.body    = tr("Closed OK");
+    ticket.subject = tr("Close");
+
+    answerForm = new answer(ticket, tr("Close"));
+    if (answerForm->exec()) {
+        //QString subject = answerForm->getSubject();
+        QString body    = answerForm->getBody();
+        worker->closeTicket(contextId, body);
+        blockActions(false);
+    }
+    delete answerForm;
+
 }
 
 void otrs::blockActions(bool status) {

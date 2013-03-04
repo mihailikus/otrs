@@ -19,7 +19,7 @@ class answer : public QDialog
     Q_OBJECT
     
 public:
-    explicit answer(Ticket ticket, QWidget *parent = 0);
+    explicit answer(Ticket ticket, QString action, QWidget *parent = 0);
     ~answer();
 
 public slots:

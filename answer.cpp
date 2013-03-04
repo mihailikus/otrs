@@ -1,7 +1,7 @@
 #include "answer.h"
 #include "ui_answer.h"
 
-answer::answer(Ticket ticket, QWidget *parent) :
+answer::answer(Ticket ticket, QString action, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::answer)
 {
@@ -16,7 +16,7 @@ answer::answer(Ticket ticket, QWidget *parent) :
     //editBrowser = qFindChild<QTextBrowser*>(this,"textBrowser");
 
 
-    ticketSubject->setText(tr("Reply on: ") + ticket.subject);
+    ticketSubject->setText(tr("Action: ") + action);
     mailtoLabel->setText(ticket.mail);
     editSubject->setText(tr("Re: ") + ticket.subject);
 
