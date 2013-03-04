@@ -145,6 +145,8 @@ void otrs::make_actions() {
     actionClose = new QAction(tr("Close ticket"), this);
     connect(actionClose, SIGNAL(triggered()), SLOT(on_actionClose()));
 
+    action_wizard = new QAction(tr("Wizard config"), this);
+    connect(action_wizard, SIGNAL(triggered()), SLOT(on_action_wizard()));
 }
 
 void otrs::make_menus() {
@@ -152,7 +154,12 @@ void otrs::make_menus() {
     menuBar = new QMenuBar();
     menu = menuBar->addMenu(tr("File"));
     menu->addAction(action_exit);
+
+    menuEdit = menuBar->addMenu(tr("Edit"));
+    menuEdit->addAction(action_wizard);
+
     this->setMenuBar(menuBar);
+
 
     //контекстное меню
     contextMenu = new QMenu();
@@ -406,9 +413,6 @@ void otrs::on_context_menu(QPoint point) {
         return;
 
     contextId      = ui_tableWidget->item(item->row(), 0)->text().toInt();
-    contextMailto  = ticketList[contextId].mail;
-    contextArticle = 0; //ui_tableWidget->item(item->row(), 0)->text().toInt();
-
     contextMenu->exec(ui_tableWidget->mapToGlobal(point));
 
 }
@@ -419,9 +423,6 @@ void otrs::on_actionSpam() {
 }
 
 void otrs::on_actionAnswer() {
-//    qDebug() << "Ticket parameters: " << ticketList[contextId].articleID <<
-//                ticketList[contextId].mail;
-
     answerForm = new answer(ticketList[contextId], tr("Answer"));
     if (answerForm->exec()) {
         QString subject = answerForm->getSubject();
@@ -434,14 +435,12 @@ void otrs::on_actionAnswer() {
 }
 
 void otrs::on_actionClose() {
-    //worker->closeTicket(contextId, "OK");
     Ticket ticket;
     ticket.body    = tr("Closed OK");
     ticket.subject = tr("Close");
 
     answerForm = new answer(ticket, tr("Close"));
     if (answerForm->exec()) {
-        //QString subject = answerForm->getSubject();
         QString body    = answerForm->getBody();
         worker->closeTicket(contextId, body);
         blockActions(false);
@@ -454,4 +453,9 @@ void otrs::blockActions(bool status) {
     actionAnswer->setEnabled(status);
     actionClose->setEnabled(status);
     actionSpam->setEnabled(status);
+}
+
+void otrs::on_action_wizard() {
+    wizard = new Wizard(otrsConfig, billConfig);
+    wizard->exec();
 }

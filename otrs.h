@@ -22,6 +22,7 @@
 #include "OtrsWorker.h"
 
 #include "answer.h"
+#include "wizard.h"
 
 namespace Ui {
 class otrs;
@@ -55,6 +56,7 @@ private:
     QSystemTrayIcon *icon;
 
     QMenuBar *menuBar;
+    QMenu *menuEdit;
     QMenu *menu;
     QToolBar *toolBar;
     QGridLayout *mainLayout;
@@ -65,14 +67,14 @@ private:
     QAction *action_log;
     QAction *action_tray;
 
+    QAction *action_wizard;
+
     //--------------
     QMenu *contextMenu;
     QAction *actionSpam;
     QAction *actionAnswer;
     QAction *actionClose;
     int      contextId;
-    QString  contextMailto;
-    int      contextArticle;
 
     QMap<int, Ticket> ticketList;
 
@@ -83,6 +85,7 @@ private:
 
     //--------------
     answer * answerForm;
+    Wizard * wizard;
 
 private slots:
     void on_clipboard_changed();
@@ -95,6 +98,8 @@ private slots:
 
     void on_action_exit();
     void on_action_log(bool status);
+
+    void on_action_wizard();
 
     void on_mouse_click(int x, int y);
 

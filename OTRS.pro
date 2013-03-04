@@ -22,7 +22,8 @@ SOURCES += main.cpp\
     billingModule.cpp \
     timeChecker.cpp \
     OtrsWorker.cpp \
-    answer.cpp
+    answer.cpp \
+    wizard.cpp
 
 HEADERS  += otrs.h \
     ticket.h \
@@ -33,10 +34,12 @@ HEADERS  += otrs.h \
     timeChecker.h \
     mysql_config.h \
     OtrsWorker.h \
-    answer.h
+    answer.h \
+    wizard.h
 
 FORMS    += \
-    answer.ui
+    answer.ui \
+    wizard.ui
 
 OTHER_FILES +=
 
