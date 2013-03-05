@@ -70,6 +70,8 @@ private:
     QAction *action_log;
     QAction *action_tray;
 
+    QAction *actionCheck;
+
     QAction *action_wizard;
     QAction *action_save_settings;
 
@@ -106,6 +108,8 @@ private slots:
     void on_action_exit();
     void on_action_log(bool status);
 
+    void on_actionCheck();
+
     void on_action_wizard();
     void on_action_save_settings();
 
@@ -123,7 +127,7 @@ private slots:
     void load_settings(QString fileName);
     bool show_wizard(QString text = "");
 
-    void blockRow(int id);
+    void blockRow(int id, QBrush brush = QBrush(Qt::green));
 
     QStringList replace_line_in_config(QStringList lines, QString param, QString newValue);
 

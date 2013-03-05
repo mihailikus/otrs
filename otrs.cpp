@@ -41,6 +41,8 @@ otrs::otrs(QWidget *parent) :
     worker = new OtrsWorker(otrsConfig);
     connect(worker, SIGNAL(unblocActions(bool)), this, SLOT(blockActions(bool)));
 
+    on_actionCheck();
+
 }
 
 void otrs::make_actions() {
@@ -88,6 +90,9 @@ void otrs::make_actions() {
     action_save_settings->setShortcut(QKeySequence("Shift+F12"));
     connect(action_save_settings, SIGNAL(triggered()), SLOT(on_action_save_settings()));
 
+    actionCheck = new QAction(tr("Check old tickets"), this);
+    connect(actionCheck, SIGNAL(triggered()), SLOT(on_actionCheck()));
+
 }
 
 void otrs::make_menus() {
@@ -123,6 +128,8 @@ void otrs::make_tool_bar() {
     toolBar->addAction(action_logo);
     toolBar->addAction(action_log);
     toolBar->addAction(action_tray);
+    toolBar->addSeparator();
+    toolBar->addAction(actionCheck);
     toolBar->addSeparator();
     toolBar->addAction(action_exit);
     this->addToolBar(toolBar);
@@ -250,6 +257,9 @@ void otrs::on_newTicket(Ticket ticket) {
     if (action_tray->isChecked())
         icon->showMessage(tr("OTRS"), tr("New ticket ready"));
 
+    ticket.isRemoved = false;
+    ticket.updateTime.start();
+
     ticketList[ticket.id] = ticket;
 
 }
@@ -264,6 +274,7 @@ void otrs::on_delTicket(Ticket ticket) {
         {
             on_logUpdate("Remove ticket: " + QString::number(ticket.id) + " " + ticket.host);
             ui_tableWidget->removeRow(i);
+            ticketList[ticket.id].isRemoved = true;
             ro--;
             i--;
         }
@@ -275,23 +286,19 @@ void otrs::updateTicket(Ticket ticket) {
     QString text;
     QString m1 = tr("in base");
     QString m2 = tr("NOT in BASE");
-    QTableWidgetItem* itemMail = new QTableWidgetItem("status");
-    QTableWidgetItem* itemMoney = new QTableWidgetItem(QString::number(ticket.money));
-    QTableWidgetItem* itemServer = new QTableWidgetItem(QString::number(ticket.server));
-    QTableWidgetItem* itemHost = new QTableWidgetItem(ticket.host);
-
 
     for (int i = 0; i<ui_tableWidget->rowCount(); i++) {
          text = ui_tableWidget->item(i, 0)->text();
          if (text.toInt() == ticket.id) {
              if (ticket.isMailinBase)
-                 itemMail->setText(m1);
+                 ui_tableWidget->item(i, 4)->setText(m1);
              else
-                 itemMail->setText(m2);
-            ui_tableWidget->setItem(i, 2, itemHost);
-            ui_tableWidget->setItem(i, 4, itemMail);
-            ui_tableWidget->setItem(i, 5, itemMoney);
-            ui_tableWidget->setItem(i, 6, itemServer);
+                 ui_tableWidget->item(i, 4)->setText(m2);
+
+            ui_tableWidget->item(i, 2)->setText(ticket.host);
+            ui_tableWidget->item(i, 5)->setText(QString::number(ticket.money));
+            ui_tableWidget->item(i, 6)->setText(QString::number(ticket.server));
+
          }
     }
     int id = ticket.id;
@@ -300,8 +307,6 @@ void otrs::updateTicket(Ticket ticket) {
     ticketList[id].server = ticket.server;
     ticketList[id].host = ticket.host;
     ticketList[id].isMailinBase = ticket.isMailinBase;
-
-    //itemHost->background()
 }
 
 void otrs::on_clipboard_changed() {
@@ -417,13 +422,13 @@ void otrs::on_actionBlock() {
     blockActions(false);
 }
 
-void otrs::blockRow(int id) {
+void otrs::blockRow(int id, QBrush brush) {
     QString text;
     for (int i = 0; i<ui_tableWidget->rowCount(); i++) {
          text = ui_tableWidget->item(i, 0)->text();
          if (text.toInt() == id) {
              for (int j = 0; j<ui_tableWidget->columnCount(); j++)
-                ui_tableWidget->item(i, j)->setBackground(QBrush(Qt::green));
+                ui_tableWidget->item(i, j)->setBackground(brush);
          }
     }
 }
@@ -431,7 +436,21 @@ void otrs::blockRow(int id) {
 void otrs::on_actionRemove() {
     Ticket ticket;
     ticket.id = contextId;
-    on_delTicket(ticket);
+
+    int ro = ui_tableWidget->rowCount();
+    QTableWidgetItem *itm;
+    for (int i = 0; i<ro; i++) {
+        itm = ui_tableWidget->item(i, 0);
+        if (itm->text().toInt() == contextId)
+        {
+            on_logUpdate("Remove ticket: " + QString::number(contextId));
+            ui_tableWidget->removeRow(i);
+            ticketList[contextId].isRemoved = true;
+            ro--;
+            i--;
+        }
+    }
+
 }
 
 void otrs::blockActions(bool status) {
@@ -589,4 +608,18 @@ void otrs::load_settings(QString fileName) {
     }
     file->close();
 
+}
+
+void otrs::on_actionCheck() {
+    Ticket ticket;
+    qDebug() << ticketList.count();
+    int tm;
+    foreach (ticket, ticketList) {
+        tm =  ticket.updateTime.elapsed();
+        if (!ticket.isRemoved && tm > 3600000) {
+            blockRow(ticket.id, QBrush(Qt::red));
+        }
+
+    }
+    QTimer::singleShot(5*60*1000, this, SLOT(on_actionCheck()));
 }

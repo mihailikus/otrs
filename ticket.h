@@ -32,6 +32,10 @@ public:
         return false;
     }
 
+    //для мониторинга залежалых тикетов
+    bool isRemoved;
+    QTime updateTime;
+
 };
 
 
