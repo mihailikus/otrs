@@ -78,6 +78,9 @@ void otrs::make_actions() {
     actionBlock = new QAction(tr("Block ticket"), this);
     connect(actionBlock, SIGNAL(triggered()), SLOT(on_actionBlock()));
 
+    actionRemove = new QAction(tr("Manual remove"), this);
+    connect(actionRemove, SIGNAL(triggered()), SLOT(on_actionRemove()));
+
     action_wizard = new QAction(tr("Wizard config"), this);
     connect(action_wizard, SIGNAL(triggered()), SLOT(on_action_wizard()));
 
@@ -109,6 +112,8 @@ void otrs::make_menus() {
     contextMenu->addAction(actionAnswer);
     contextMenu->addSeparator();
     contextMenu->addAction(actionSpam);
+    contextMenu->addSeparator();
+    contextMenu->addAction(actionRemove);
 
 }
 
@@ -421,6 +426,12 @@ void otrs::blockRow(int id) {
                 ui_tableWidget->item(i, j)->setBackground(QBrush(Qt::green));
          }
     }
+}
+
+void otrs::on_actionRemove() {
+    Ticket ticket;
+    ticket.id = contextId;
+    on_delTicket(ticket);
 }
 
 void otrs::blockActions(bool status) {

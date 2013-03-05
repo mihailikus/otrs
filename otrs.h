@@ -79,6 +79,7 @@ private:
     QAction *actionAnswer;
     QAction *actionClose;
     QAction *actionBlock;
+    QAction *actionRemove;
     int      contextId;
 
     QMap<int, Ticket> ticketList;
@@ -115,6 +116,7 @@ private slots:
     void on_actionAnswer();
     void on_actionClose();
     void on_actionBlock();
+    void on_actionRemove();
     void blockActions(bool status);
 
     void save_settings(QString fileName);
