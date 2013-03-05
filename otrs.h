@@ -17,6 +17,7 @@
 #include <QTextBrowser>
 #include <QMap>
 #include <QFile>
+#include <QTextStream>
 #include <QHeaderView>
 #include "checker.h"
 #include "OtrsWorker.h"
@@ -117,6 +118,8 @@ private slots:
     void save_settings(QString fileName);
     void load_settings(QString fileName);
     bool show_wizard(QString text = "");
+
+    QStringList replace_line_in_config(QStringList lines, QString param, QString newValue);
 
 
 };

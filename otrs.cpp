@@ -431,7 +431,53 @@ void otrs::on_action_save_settings() {
 }
 
 void otrs::save_settings(QString fileName) {
-    qDebug() << "file " << fileName;
+    QFile *file = new QFile(fileName);
+    if (!file->open(QFile::ReadOnly)) {
+        logView->insertHtml(tr("Cannot open file: ") + fileName + "<br>");
+        return;
+    }
+    QByteArray line;
+    QStringList lines;
+    QTextCodec *codec = QTextCodec::codecForName("UTF-8");
+    while (!file->atEnd()) {
+        line = file->readLine();
+        lines.append(codec->toUnicode(line));
+    }
+    file->close();
+
+    if (!file->open(QFile::WriteOnly)) {
+        logView->insertHtml(tr("Cannot re-write file: ") + fileName + "<br>");
+        return;
+    }
+
+    lines = replace_line_in_config(lines, "otrs.username", otrsConfig.username);
+    lines = replace_line_in_config(lines, "otrs.userpass", otrsConfig.userpass);
+    lines = replace_line_in_config(lines, "bill.username", billConfig.username);
+    lines = replace_line_in_config(lines, "bill.userpass", billConfig.userpass);
+
+
+    QString content = "";
+    for (int i =0; i<lines.count(); i++) content += lines.at(i);
+    QTextStream out(file);
+    out.setCodec(codec);
+    out << content;
+    file->close();
+
+}
+
+QStringList otrs::replace_line_in_config(QStringList lines, QString param, QString newValue) {
+    QString line;
+    QStringList newlines;
+    for (int i =0; i<lines.count(); i++) {
+        line = lines.at(i);
+        if (line.at(0) != '#') {
+            if (line.trimmed().startsWith(param)) {
+                line = param + " = " + newValue + "\n";
+            }
+        }
+        newlines << line;
+    }
+    return newlines;
 }
 
 void otrs::load_settings(QString fileName) {

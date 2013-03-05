@@ -2,6 +2,10 @@
 #include <QDebug>
 
 BillingModule::BillingModule (LoginConfig cfg) {
+    setConfig(cfg);
+}
+
+void BillingModule::setConfig(LoginConfig cfg) {
     ///отправляем запрос на подключение к биллингу
 
     QNetworkRequest request;
@@ -22,7 +26,7 @@ BillingModule::BillingModule (LoginConfig cfg) {
     connect(this, SIGNAL(finished(QNetworkReply*)),
                 this, SLOT(connected(QNetworkReply*)));
     isConnected = false;
-   this->get(request);
+    this->get(request);
 }
 
 BillingModule::~BillingModule() {

@@ -54,7 +54,7 @@ LoginConfig Wizard::getOtrsConfig() {
 LoginConfig Wizard::getBillConfig() {
     LoginConfig bill;
     bill.username = editBillLogin->text();
-    bill.userpass = editBillLogin->text();
+    bill.userpass = editBillPass->text();
     return bill;
 }
 

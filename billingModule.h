@@ -16,6 +16,8 @@ public:
     BillingModule (LoginConfig cfg);
     ~BillingModule ();
 
+    void setConfig(LoginConfig cfg);
+
     QStringList tickets;
 
 private slots:

@@ -47,7 +47,7 @@ public:
     void run();
 
     void setOtrsConfig(LoginConfig otrs) {otrsConfig = otrs; }
-    void setBillconfig(LoginConfig bill) {billConfig = bill; }
+    void setBillconfig(LoginConfig bill) {billConfig = bill; billConnection->setConfig(bill); }
 
 public slots:
     void stop();
