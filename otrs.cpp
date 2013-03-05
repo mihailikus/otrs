@@ -17,6 +17,9 @@ otrs::otrs(QWidget *parent) :
     make_central_widget();
     make_status_bar();
 
+    answerHeader = "";
+    answerFooter = "";
+
     //читаем файл конфигурации config.ini
     QFile *file = new QFile("./config.ini");
     if (!file->open(QFile::ReadOnly)) {
@@ -423,7 +426,7 @@ void otrs::on_actionSpam() {
 }
 
 void otrs::on_actionAnswer() {
-    answerForm = new answer(ticketList[contextId], tr("Answer"));
+    answerForm = new answer(ticketList[contextId], answerHeader, answerFooter, tr("Answer"));
     if (answerForm->exec()) {
         QString subject = answerForm->getSubject();
         QString body    = answerForm->getBody();
@@ -439,7 +442,7 @@ void otrs::on_actionClose() {
     ticket.body    = tr("Closed OK");
     ticket.subject = tr("Close");
 
-    answerForm = new answer(ticket, tr("Close"));
+    answerForm = new answer(ticket, "", "", tr("Close"));
     if (answerForm->exec()) {
         QString body    = answerForm->getBody();
         worker->closeTicket(contextId, body);
@@ -456,6 +459,19 @@ void otrs::blockActions(bool status) {
 }
 
 void otrs::on_action_wizard() {
-    wizard = new Wizard(otrsConfig, billConfig);
-    wizard->exec();
+    wizard = new Wizard(otrsConfig, billConfig, answerHeader, answerFooter);
+    if (!wizard->exec()) return;
+    answerHeader = wizard->getAnswerHeader();
+    answerFooter = wizard->getAnswerFooter();
+
+    LoginConfig otrscfg, billcfg;
+    otrscfg = wizard->getOtrsConfig();
+    billcfg = wizard->getBillConfig();
+    otrsConfig.username = otrscfg.username;
+    otrsConfig.userpass = otrscfg.userpass;
+    billConfig.username = billcfg.username;
+    billConfig.userpass = billcfg.userpass;
+
+
+    delete wizard;
 }

@@ -16,8 +16,20 @@ class Wizard : public QWizard
     Q_OBJECT
     
 public:
-    explicit Wizard(LoginConfig otrsConfig, LoginConfig billConfig, QWidget *parent = 0);
+    explicit Wizard(LoginConfig otrsConfig,
+                    LoginConfig billConfig,
+                    QString     header,
+                    QString     footer,
+                    QWidget *parent = 0);
     ~Wizard();
+
+    LoginConfig getOtrsConfig();
+    LoginConfig getBillConfig();
+
+    QString     getAnswerHeader();
+    QString     getAnswerFooter();
+
+    bool        toSavePasswords();
     
 private:
     Ui::Wizard *ui;

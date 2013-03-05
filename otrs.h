@@ -86,6 +86,7 @@ private:
     //--------------
     answer * answerForm;
     Wizard * wizard;
+    QString answerHeader, answerFooter;
 
 private slots:
     void on_clipboard_changed();

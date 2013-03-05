@@ -1,18 +1,20 @@
 #include "wizard.h"
 #include "ui_wizard.h"
 
-Wizard::Wizard(LoginConfig otrsConfig, LoginConfig billConfig, QWidget *parent) :
+Wizard::Wizard(LoginConfig otrsConfig, LoginConfig billConfig, QString header, QString footer, QWidget *parent) :
     QWizard(parent),
     ui(new Ui::Wizard)
 {
     ui->setupUi(this);
 
-//    editSubject   = qFindChild<QLineEdit*>(this, "lineEdit");
     editOtrsLogin   = qFindChild<QLineEdit*>(this, "editOtrsLogin");
     editOtrsPass    = qFindChild<QLineEdit*>(this, "editOtrsPass");
 
     editBillLogin   = qFindChild<QLineEdit*>(this, "editBillLogin");
     editBillPass    = qFindChild<QLineEdit*>(this, "editBillPass");
+
+    textEditHeader  = qFindChild<QTextEdit*>(this, "textEditHeader");
+    textEditFooter  = qFindChild<QTextEdit*>(this, "textEditFooter");
 
     otrscfg = otrsConfig;
     billcfg = billConfig;
@@ -23,12 +25,38 @@ Wizard::Wizard(LoginConfig otrsConfig, LoginConfig billConfig, QWidget *parent) 
     editBillLogin->setText(billcfg.username);
     editBillPass->setText(billcfg.userpass);
 
-
-
+    textEditHeader->setText(header);
+    textEditFooter->setText(footer);
 
 }
 
 Wizard::~Wizard()
 {
     delete ui;
+}
+
+LoginConfig Wizard::getOtrsConfig() {
+    LoginConfig otrs;
+    otrs.username = editOtrsLogin->text();
+    otrs.userpass = editOtrsPass->text();
+    return otrs;
+}
+
+LoginConfig Wizard::getBillConfig() {
+    LoginConfig bill;
+    bill.username = editBillLogin->text();
+    bill.userpass = editBillLogin->text();
+    return bill;
+}
+
+QString Wizard::getAnswerHeader() {
+    return textEditHeader->toPlainText();
+}
+
+QString Wizard::getAnswerFooter() {
+    return textEditFooter->toPlainText();
+}
+
+bool Wizard::toSavePasswords() {
+    return true;
 }
