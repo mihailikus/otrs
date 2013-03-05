@@ -508,6 +508,10 @@ void otrs::save_settings(QString fileName) {
     lines = replace_line_in_config(lines, "otrs.userpass", otrsConfig.userpass);
     lines = replace_line_in_config(lines, "bill.username", billConfig.username);
     lines = replace_line_in_config(lines, "bill.userpass", billConfig.userpass);
+    lines = replace_line_in_config(lines, "answer.header", answerHeader);
+    lines = replace_line_in_config(lines, "answer.footer", answerFooter);
+
+
 
 
     QString content = "";
@@ -522,13 +526,20 @@ void otrs::save_settings(QString fileName) {
 QStringList otrs::replace_line_in_config(QStringList lines, QString param, QString newValue) {
     QString line;
     QStringList newlines;
+    bool exists = false;
+    newValue.replace("\n", "0x%13");
     for (int i =0; i<lines.count(); i++) {
         line = lines.at(i);
         if (line.at(0) != '#') {
             if (line.trimmed().startsWith(param)) {
                 line = param + " = " + newValue + "\n";
+                exists = true;
             }
         }
+        newlines << line;
+    }
+    if (!exists) {
+        line = param + " = " + newValue + "\n";
         newlines << line;
     }
     return newlines;
@@ -545,6 +556,8 @@ void otrs::load_settings(QString fileName) {
     QByteArray line;
     QString params;
     QString value;
+    QTextCodec *codec = QTextCodec::codecForName("UTF-8");
+
     while (!file->atEnd()) {
         line = file->readLine();
         if (line.at(0) != '#') {
@@ -603,6 +616,22 @@ void otrs::load_settings(QString fileName) {
 
             if (value == "table")
                 mysqlconfig.table = params;
+
+            if (value == "answer.header") {
+                params = codec->toUnicode(line);
+                params.remove(0, params.indexOf("=")+1);
+                params = params.trimmed();
+                answerHeader = params;
+                answerHeader.replace("0x%13", "\n");
+            }
+
+            if (value == "answer.footer") {
+                params = codec->toUnicode(line);
+                params.remove(0, params.indexOf("=")+1);
+                params = params.trimmed();
+                answerFooter = params;
+                answerFooter.replace("0x%13", "\n");
+            }
 
         }
     }
