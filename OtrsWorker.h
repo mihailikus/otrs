@@ -9,6 +9,7 @@ class OtrsWorker : public OtrsModule {
     Q_OBJECT
 public:
     OtrsWorker(LoginConfig otrs);
+    void setConfig(LoginConfig cfg);
 
     void spamTicket  (int id);
     void answTicket  (int id, int articleID, QString body, QString subject, QString mailto);

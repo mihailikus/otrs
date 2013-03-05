@@ -37,7 +37,7 @@ public:
     ~otrs();
 
 public slots:
-    void on_connected();
+    void on_connected(bool status);
     void on_newTicket(Ticket ticket);
     void on_delTicket(Ticket ticket);
     void updateTicket (Ticket ticket);
@@ -48,6 +48,8 @@ private:
     QStatusBar *ui_bar;
     QTableWidget *ui_tableWidget;
     QTextBrowser *logView, *tickView;
+
+    QLabel *lbl;
 
     Checker *otrsChecker;
 
@@ -68,6 +70,7 @@ private:
     QAction *action_tray;
 
     QAction *action_wizard;
+    QAction *action_save_settings;
 
     //--------------
     QMenu *contextMenu;
@@ -101,6 +104,7 @@ private slots:
     void on_action_log(bool status);
 
     void on_action_wizard();
+    void on_action_save_settings();
 
     void on_mouse_click(int x, int y);
 
@@ -109,6 +113,10 @@ private slots:
     void on_actionAnswer();
     void on_actionClose();
     void blockActions(bool status);
+
+    void save_settings(QString fileName);
+    void load_settings(QString fileName);
+    bool show_wizard(QString text = "");
 
 
 };

@@ -11,6 +11,10 @@ OtrsWorker::OtrsWorker (LoginConfig otrs) :
 
 }
 
+void OtrsWorker::setConfig(LoginConfig cfg) {
+    this->reconnect(cfg);
+}
+
 void OtrsWorker::spamTicket(int id) {
     qDebug() << "Move to spam: " << id;
     tickets << id;

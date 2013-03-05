@@ -16,6 +16,7 @@ public:
     ~OtrsModule ();
     bool isAllPages();
     bool is_connected();
+    void reconnect(LoginConfig cfg);
 
 
 private:

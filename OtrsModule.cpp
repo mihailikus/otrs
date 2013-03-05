@@ -3,6 +3,10 @@
 
 
 OtrsModule::OtrsModule (LoginConfig cfg) {
+    this->reconnect(cfg);
+}
+
+void OtrsModule::reconnect(LoginConfig cfg) {
     ///подключаемся к ОТРС (вводим логин-пароль на странице для входа)
 
     QString postData = cfg.post;

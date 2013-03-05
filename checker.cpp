@@ -48,10 +48,11 @@ void Checker::connection_ready(int status) {
         otrsConnected = true;
         qDebug() << "connected";
         this->run();
-        emit connected_success();
+        emit connected_success(true);
     } else {
         qDebug() << "Cannot connect";
         emit logText(tr("Cannot connect. Check your config.ini file"));
+        emit connected_success(false);
     }
 }
 

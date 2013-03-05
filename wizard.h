@@ -4,6 +4,7 @@
 #include <QWizard>
 #include <QLineEdit>
 #include <QTextEdit>
+#include <QLabel>
 
 #include "login_config.h"
 
@@ -20,7 +21,8 @@ public:
                     LoginConfig billConfig,
                     QString     header,
                     QString     footer,
-                    QWidget *parent = 0);
+                    QString     text = "",
+                    QWidget    *parent = 0);
     ~Wizard();
 
     LoginConfig getOtrsConfig();
@@ -37,6 +39,8 @@ private:
     LoginConfig otrscfg, billcfg;
     QLineEdit *editOtrsLogin, *editOtrsPass, *editBillLogin, *editBillPass;
     QTextEdit *textEditHeader, *textEditFooter;
+
+    QLabel    *lbl;
 
 
 };

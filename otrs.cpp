@@ -20,83 +20,10 @@ otrs::otrs(QWidget *parent) :
     answerHeader = "";
     answerFooter = "";
 
-    //читаем файл конфигурации config.ini
-    QFile *file = new QFile("./config.ini");
-    if (!file->open(QFile::ReadOnly)) {
-        //emit logText(tr("Cannot open config file config.ini"));
-        return;
-    }
-
-    QByteArray line;
-    QString params;
-    QString value;
-    int i = 0;
-    while (!file->atEnd()) {
-        line = file->readLine();
-        if (line.at(0) != '#') {
-            params = line;
-            params.remove(0, params.indexOf("=")+1);
-            params = params.trimmed();
-
-            value = line;
-            value.remove(value.indexOf("="), value.length()-1);
-            value = value.trimmed();
-
-            if (value == "otrs.username")
-                otrsConfig.username = params;
-
-            if (value == "otrs.url")
-                otrsConfig.uri = params;
-
-            if (value == "otrs.url2")
-                otrsConfig.uri2 = params;
-
-            if (value == "otrs.post")
-                otrsConfig.post = params;
-
-            if (value == "otrs.zoom")
-                otrsConfig.zoom = params;
-
-            if (value == "otrs.hist")
-                otrsConfig.hist = params;
-
-            if (value == "bill.url")
-                billConfig.uri = params;
-
-            if (value == "bill.url2")
-                billConfig.uri2 = params;
-
-            if (value == "otrs.userpass")
-                otrsConfig.userpass = params;
-
-            if (value == "bill.username")
-                billConfig.username = params;
-
-            if (value == "bill.userpass")
-                billConfig.userpass = params;
-
-            if (value == "dbHost")
-                mysqlconfig.dbHost = params;
-
-            if (value == "dbName")
-                mysqlconfig.dbName = params;
-
-            if (value == "dbUser")
-                mysqlconfig.dbUser = params;
-
-            if (value == "dbPass")
-                mysqlconfig.dbPass = params;
-
-            if (value == "table")
-                mysqlconfig.table = params;
-
-        }
-    }
-    file->close();
-
+    load_settings("./config.ini");
 
     otrsChecker = new Checker(otrsConfig, billConfig, mysqlconfig, this);
-    connect(otrsChecker, SIGNAL(connected_success()), SLOT(on_connected()));
+    connect(otrsChecker, SIGNAL(connected_success(bool )), SLOT(on_connected(bool )));
     connect(otrsChecker, SIGNAL(new_ticket(Ticket)), SLOT(on_newTicket(Ticket)));
     connect(otrsChecker, SIGNAL(remove_ticket(Ticket)), SLOT(on_delTicket(Ticket)));
     connect(otrsChecker, SIGNAL(update_ticket(Ticket)), this, SLOT(updateTicket(Ticket)));
@@ -150,6 +77,11 @@ void otrs::make_actions() {
 
     action_wizard = new QAction(tr("Wizard config"), this);
     connect(action_wizard, SIGNAL(triggered()), SLOT(on_action_wizard()));
+
+    action_save_settings = new QAction(tr("Save settings"), this);
+    action_save_settings->setShortcut(QKeySequence("Shift+F12"));
+    connect(action_save_settings, SIGNAL(triggered()), SLOT(on_action_save_settings()));
+
 }
 
 void otrs::make_menus() {
@@ -159,6 +91,8 @@ void otrs::make_menus() {
     menu->addAction(action_exit);
 
     menuEdit = menuBar->addMenu(tr("Edit"));
+    menuEdit->addAction(action_save_settings);
+    menuEdit->addSeparator();
     menuEdit->addAction(action_wizard);
 
     this->setMenuBar(menuBar);
@@ -168,8 +102,6 @@ void otrs::make_menus() {
     contextMenu = new QMenu();
     contextMenu->addAction(actionClose);
     contextMenu->addAction(actionAnswer);
-    contextMenu->addSeparator();
-    contextMenu->addSeparator();
     contextMenu->addSeparator();
     contextMenu->addAction(actionSpam);
 
@@ -247,6 +179,11 @@ void otrs::make_central_widget() {
 void otrs::make_status_bar() {
     ///создаем строку состояния
     ui_bar = new QStatusBar();
+
+    lbl = new QLabel;
+    lbl->setText(tr("Connecting..."));
+    ui_bar->addWidget(lbl);
+
     this->setStatusBar(ui_bar);
 }
 
@@ -255,10 +192,22 @@ otrs::~otrs()
 
 }
 
-void otrs::on_connected() {
-    ///из модуля проверки тикетов получен сигнал об успешном подключении к сайту ОТРС
-    QLabel *lbl = new QLabel(tr("Connected"));
-    ui_bar->addWidget(lbl);
+void otrs::on_connected(bool status) {
+    if (status) {
+        ///из модуля проверки тикетов получен сигнал об успешном подключении к сайту ОТРС
+        lbl->setText(tr("Connected OK"));
+    } else {
+        //если подключение не произошло - вызываем мастера настроек
+        lbl->setText(tr("Cannot access to OTRS"));
+        if (show_wizard(tr("Check login/userpass"))) {
+            lbl->setText(tr("New attempt to connect..."));
+            otrsChecker->setBillconfig(billConfig);
+            otrsChecker->setOtrsConfig(otrsConfig);
+            worker->setConfig(otrsConfig);
+            otrsChecker->run();
+        }
+    }
+
 }
 
 void otrs::on_newTicket(Ticket ticket) {
@@ -369,12 +318,10 @@ void otrs::on_clipboard_changed() {
     }
 }
 
-
 void otrs::on_action_exit() {
     ///выходим из программы
     close();
 }
-
 
 void otrs::on_logUpdate(QString txt) {
     ///из модуля проверки получен сигнал с отладочным сообщением
@@ -459,8 +406,12 @@ void otrs::blockActions(bool status) {
 }
 
 void otrs::on_action_wizard() {
-    wizard = new Wizard(otrsConfig, billConfig, answerHeader, answerFooter);
-    if (!wizard->exec()) return;
+    show_wizard();
+}
+
+bool otrs::show_wizard(QString text) {
+    wizard = new Wizard(otrsConfig, billConfig, answerHeader, answerFooter, text);
+    if (!wizard->exec()) return false;
     answerHeader = wizard->getAnswerHeader();
     answerFooter = wizard->getAnswerFooter();
 
@@ -471,7 +422,90 @@ void otrs::on_action_wizard() {
     otrsConfig.userpass = otrscfg.userpass;
     billConfig.username = billcfg.username;
     billConfig.userpass = billcfg.userpass;
-
-
     delete wizard;
+    return true;
+}
+
+void otrs::on_action_save_settings() {
+    this->save_settings("config.ini");
+}
+
+void otrs::save_settings(QString fileName) {
+    qDebug() << "file " << fileName;
+}
+
+void otrs::load_settings(QString fileName) {
+    //читаем файл конфигурации config.ini
+    QFile *file = new QFile(fileName);
+    if (!file->open(QFile::ReadOnly)) {
+        logView->insertHtml(tr("Cannot open config file: ") + fileName + "<br>\n");
+        return;
+    }
+
+    QByteArray line;
+    QString params;
+    QString value;
+    while (!file->atEnd()) {
+        line = file->readLine();
+        if (line.at(0) != '#') {
+            params = line;
+            params.remove(0, params.indexOf("=")+1);
+            params = params.trimmed();
+
+            value = line;
+            value.remove(value.indexOf("="), value.length()-1);
+            value = value.trimmed();
+
+            if (value == "otrs.username")
+                otrsConfig.username = params;
+
+            if (value == "otrs.url")
+                otrsConfig.uri = params;
+
+            if (value == "otrs.url2")
+                otrsConfig.uri2 = params;
+
+            if (value == "otrs.post")
+                otrsConfig.post = params;
+
+            if (value == "otrs.zoom")
+                otrsConfig.zoom = params;
+
+            if (value == "otrs.hist")
+                otrsConfig.hist = params;
+
+            if (value == "bill.url")
+                billConfig.uri = params;
+
+            if (value == "bill.url2")
+                billConfig.uri2 = params;
+
+            if (value == "otrs.userpass")
+                otrsConfig.userpass = params;
+
+            if (value == "bill.username")
+                billConfig.username = params;
+
+            if (value == "bill.userpass")
+                billConfig.userpass = params;
+
+            if (value == "dbHost")
+                mysqlconfig.dbHost = params;
+
+            if (value == "dbName")
+                mysqlconfig.dbName = params;
+
+            if (value == "dbUser")
+                mysqlconfig.dbUser = params;
+
+            if (value == "dbPass")
+                mysqlconfig.dbPass = params;
+
+            if (value == "table")
+                mysqlconfig.table = params;
+
+        }
+    }
+    file->close();
+
 }

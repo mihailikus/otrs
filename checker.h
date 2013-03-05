@@ -46,6 +46,9 @@ public:
 
     void run();
 
+    void setOtrsConfig(LoginConfig otrs) {otrsConfig = otrs; }
+    void setBillconfig(LoginConfig bill) {billConfig = bill; }
+
 public slots:
     void stop();
     void connection_ready(int status);
@@ -71,7 +74,7 @@ signals:
     void remove_ticket (Ticket ticket);
     void update_ticket (Ticket ticket);
 
-    void connected_success();
+    void connected_success(bool status);
 
     void work_on_bill_finished(Ticket ticket);
 

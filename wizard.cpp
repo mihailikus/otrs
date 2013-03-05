@@ -1,7 +1,12 @@
 #include "wizard.h"
 #include "ui_wizard.h"
 
-Wizard::Wizard(LoginConfig otrsConfig, LoginConfig billConfig, QString header, QString footer, QWidget *parent) :
+Wizard::Wizard(LoginConfig otrsConfig,
+               LoginConfig billConfig,
+               QString header,
+               QString footer,
+               QString text,
+               QWidget *parent) :
     QWizard(parent),
     ui(new Ui::Wizard)
 {
@@ -16,6 +21,8 @@ Wizard::Wizard(LoginConfig otrsConfig, LoginConfig billConfig, QString header, Q
     textEditHeader  = qFindChild<QTextEdit*>(this, "textEditHeader");
     textEditFooter  = qFindChild<QTextEdit*>(this, "textEditFooter");
 
+    lbl             = qFindChild<QLabel*>(this, "lbl");
+
     otrscfg = otrsConfig;
     billcfg = billConfig;
 
@@ -27,6 +34,8 @@ Wizard::Wizard(LoginConfig otrsConfig, LoginConfig billConfig, QString header, Q
 
     textEditHeader->setText(header);
     textEditFooter->setText(footer);
+
+    lbl->setText(text);
 
 }
 
