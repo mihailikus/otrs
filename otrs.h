@@ -78,6 +78,7 @@ private:
     QAction *actionSpam;
     QAction *actionAnswer;
     QAction *actionClose;
+    QAction *actionBlock;
     int      contextId;
 
     QMap<int, Ticket> ticketList;
@@ -113,11 +114,14 @@ private slots:
     void on_actionSpam();
     void on_actionAnswer();
     void on_actionClose();
+    void on_actionBlock();
     void blockActions(bool status);
 
     void save_settings(QString fileName);
     void load_settings(QString fileName);
     bool show_wizard(QString text = "");
+
+    void blockRow(int id);
 
     QStringList replace_line_in_config(QStringList lines, QString param, QString newValue);
 

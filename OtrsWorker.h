@@ -14,9 +14,7 @@ public:
     void spamTicket  (int id);
     void answTicket  (int id, int articleID, QString body, QString subject, QString mailto);
     void closeTicket (int id, QString text);
-
-
-
+    void blockTicket (int id);
 
 private:
     LoginConfig otrsconfig;
@@ -46,6 +44,9 @@ private slots:
     void answer_ticker(int Id, QString challange, QString formID);
 
     void work_ready(QNetworkReply *rpl);
+
+    //void ticket_blocked(QNetworkReply *rpl);
+
 
 signals:
 

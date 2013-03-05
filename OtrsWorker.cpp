@@ -27,6 +27,19 @@ void OtrsWorker::spamTicket(int id) {
 
 }
 
+void OtrsWorker::blockTicket(int id) {
+    qDebug() << "Blocking ticket: " << id;
+    tickets << id;
+    if (!isWorking) {
+        isWorking = true;
+        typeOfWork = "block";
+        QString url = "http://77.234.201.87/otrs/index.pl?Action=AgentTicketLock&Subaction=Lock&TicketID="
+                + QString::number(id);
+        connect(this, SIGNAL(finished(QNetworkReply*)), this, SLOT(work_ready(QNetworkReply*)));
+        this->get(QNetworkRequest(QUrl(url)));
+    }
+}
+
 void OtrsWorker::closeTicket(int id, QString text) {
     tickets << id;
     currText = text;

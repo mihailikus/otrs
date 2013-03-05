@@ -75,6 +75,9 @@ void otrs::make_actions() {
     actionClose = new QAction(tr("Close ticket"), this);
     connect(actionClose, SIGNAL(triggered()), SLOT(on_actionClose()));
 
+    actionBlock = new QAction(tr("Block ticket"), this);
+    connect(actionBlock, SIGNAL(triggered()), SLOT(on_actionBlock()));
+
     action_wizard = new QAction(tr("Wizard config"), this);
     connect(action_wizard, SIGNAL(triggered()), SLOT(on_action_wizard()));
 
@@ -100,6 +103,8 @@ void otrs::make_menus() {
 
     //контекстное меню
     contextMenu = new QMenu();
+    contextMenu->addAction(actionBlock);
+    contextMenu->addSeparator();
     contextMenu->addAction(actionClose);
     contextMenu->addAction(actionAnswer);
     contextMenu->addSeparator();
@@ -247,8 +252,10 @@ void otrs::on_newTicket(Ticket ticket) {
 void otrs::on_delTicket(Ticket ticket) {
     ///из модуля проверки получен сигнал об удалении тикета
     int ro = ui_tableWidget->rowCount();
+    QTableWidgetItem *itm;
     for (int i = 0; i<ro; i++) {
-        if (ui_tableWidget->item(i, 0)->text().toInt() == ticket.id)
+        itm = ui_tableWidget->item(i, 0);
+        if (itm->text().toInt() == ticket.id && itm->background() != QBrush(Qt::green))
         {
             on_logUpdate("Remove ticket: " + QString::number(ticket.id) + " " + ticket.host);
             ui_tableWidget->removeRow(i);
@@ -289,6 +296,7 @@ void otrs::updateTicket(Ticket ticket) {
     ticketList[id].host = ticket.host;
     ticketList[id].isMailinBase = ticket.isMailinBase;
 
+    //itemHost->background()
 }
 
 void otrs::on_clipboard_changed() {
@@ -396,7 +404,23 @@ void otrs::on_actionClose() {
         blockActions(false);
     }
     delete answerForm;
+}
 
+void otrs::on_actionBlock() {
+    blockRow(contextId);
+    worker->blockTicket(contextId);
+    blockActions(false);
+}
+
+void otrs::blockRow(int id) {
+    QString text;
+    for (int i = 0; i<ui_tableWidget->rowCount(); i++) {
+         text = ui_tableWidget->item(i, 0)->text();
+         if (text.toInt() == id) {
+             for (int j = 0; j<ui_tableWidget->columnCount(); j++)
+                ui_tableWidget->item(i, j)->setBackground(QBrush(Qt::green));
+         }
+    }
 }
 
 void otrs::blockActions(bool status) {
