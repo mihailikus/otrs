@@ -1,7 +1,8 @@
 #!/bin/bash
 
+git push
 qmake
 make
 cp config.ini.default /bin/config.ini
-./bin/OTRS &
-
+cd bin
+./OTRS &
