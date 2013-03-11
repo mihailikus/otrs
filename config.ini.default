@@ -37,5 +37,7 @@ bill.url  = http://{User}:{Password}@billing.hostland.ru/info/public/index.php?a
 bill.url2 = http://{User}:{Password}@billing.hostland.ru/info/public/index.php?account={host}&something=&status=1
 
 
+answer.header = Здравствуйте!0x%130x%130x%13
+answer.footer = 0x%130x%130x%130x%13==0x%13С уважением, 0x%13Михаил Волков,0x%13Техническая поддержка [Hostland.RU]0x%13http://www.hostland.ru/contacts/
 
 
