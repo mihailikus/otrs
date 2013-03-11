@@ -95,6 +95,7 @@ private:
     answer * answerForm;
     Wizard * wizard;
     QString answerHeader, answerFooter;
+    bool    dontSavePasswords;
 
 private slots:
     void on_clipboard_changed();

@@ -9,6 +9,13 @@ QT       += network
 QT       += sql
 QMAKE_CXXFLAGS += -fno-show-column
 
+DESTDIR = bin
+UI_DIR = build
+UIC_DIR = build
+MOC_DIR = build
+RCC_DIR = build
+OBJECTS_DIR = build
+
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = OTRS

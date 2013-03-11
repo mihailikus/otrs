@@ -21,6 +21,8 @@ Wizard::Wizard(LoginConfig otrsConfig,
     textEditHeader  = qFindChild<QTextEdit*>(this, "textEditHeader");
     textEditFooter  = qFindChild<QTextEdit*>(this, "textEditFooter");
 
+    checkToSavePass = qFindChild<QCheckBox*>(this, "checkToSavePass");
+
     lbl             = qFindChild<QLabel*>(this, "lbl");
 
     otrscfg = otrsConfig;
@@ -67,5 +69,5 @@ QString Wizard::getAnswerFooter() {
 }
 
 bool Wizard::toSavePasswords() {
-    return true;
+    return checkToSavePass->isChecked();
 }

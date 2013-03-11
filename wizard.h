@@ -5,6 +5,7 @@
 #include <QLineEdit>
 #include <QTextEdit>
 #include <QLabel>
+#include <QCheckBox>
 
 #include "login_config.h"
 
@@ -39,6 +40,7 @@ private:
     LoginConfig otrscfg, billcfg;
     QLineEdit *editOtrsLogin, *editOtrsPass, *editBillLogin, *editBillPass;
     QTextEdit *textEditHeader, *textEditFooter;
+    QCheckBox *checkToSavePass;
 
     QLabel    *lbl;
 

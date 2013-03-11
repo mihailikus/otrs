@@ -19,6 +19,7 @@ otrs::otrs(QWidget *parent) :
 
     answerHeader = "";
     answerFooter = "";
+    dontSavePasswords = false;
 
     load_settings("./config.ini");
 
@@ -472,10 +473,14 @@ bool otrs::show_wizard(QString text) {
     LoginConfig otrscfg, billcfg;
     otrscfg = wizard->getOtrsConfig();
     billcfg = wizard->getBillConfig();
+    dontSavePasswords = wizard->toSavePasswords();
+    qDebug() << dontSavePasswords;
+
     otrsConfig.username = otrscfg.username;
     otrsConfig.userpass = otrscfg.userpass;
     billConfig.username = billcfg.username;
     billConfig.userpass = billcfg.userpass;
+
     delete wizard;
     return true;
 }
@@ -510,9 +515,12 @@ void otrs::save_settings(QString fileName) {
     lines = replace_line_in_config(lines, "bill.userpass", billConfig.userpass);
     lines = replace_line_in_config(lines, "answer.header", answerHeader);
     lines = replace_line_in_config(lines, "answer.footer", answerFooter);
+    qDebug() << dontSavePasswords;
 
-
-
+    if (dontSavePasswords) {
+        lines = replace_line_in_config(lines, "otrs.userpass", "otrsConfig.userpass");
+        lines = replace_line_in_config(lines, "bill.userpass", "billConfig.userpass");
+    }
 
     QString content = "";
     for (int i =0; i<lines.count(); i++) content += lines.at(i);
