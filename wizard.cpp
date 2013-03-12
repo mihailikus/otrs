@@ -28,6 +28,9 @@ Wizard::Wizard(LoginConfig otrsConfig,
     otrscfg = otrsConfig;
     billcfg = billConfig;
 
+    editOtrsPass->setEchoMode(QLineEdit::Password);
+    editBillPass->setEchoMode(QLineEdit::Password);
+
     editOtrsLogin->setText(otrscfg.username);
     editOtrsPass->setText (otrscfg.userpass);
 
