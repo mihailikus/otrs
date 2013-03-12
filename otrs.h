@@ -66,11 +66,11 @@ private:
     QWidget *mainWidget;
 
     QAction *action_exit;
-    QAction *action_logo;
+    //QAction *action_logo;
     QAction *action_log;
     QAction *action_tray;
 
-    QAction *actionCheck;
+    //QAction *actionCheck;
 
     QAction *action_wizard;
     QAction *action_save_settings;

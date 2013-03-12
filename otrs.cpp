@@ -54,8 +54,7 @@ void otrs::make_actions() {
     action_exit->setShortcut(QKeySequence("Ctrl+Q"));
     connect(action_exit, SIGNAL(triggered()), SLOT(on_action_exit()));
 
-    action_logo = new QAction(QIcon(":/share/images/resources/logo.png"),
-                              tr("Logo"), this);
+    //action_logo = new QAction(QIcon(":/share/images/resources/logo.png"), tr("Logo"), this);
 
     action_log = new QAction(tr("LOG"), this);
     action_log->setShortcut(QKeySequence("Ctrl+L"));
@@ -91,8 +90,8 @@ void otrs::make_actions() {
     action_save_settings->setShortcut(QKeySequence("Shift+F12"));
     connect(action_save_settings, SIGNAL(triggered()), SLOT(on_action_save_settings()));
 
-    actionCheck = new QAction(tr("Check old tickets"), this);
-    connect(actionCheck, SIGNAL(triggered()), SLOT(on_actionCheck()));
+    //actionCheck = new QAction(tr("Check old tickets"), this);
+    //connect(actionCheck, SIGNAL(triggered()), SLOT(on_actionCheck()));
 
 }
 
@@ -126,12 +125,12 @@ void otrs::make_menus() {
 void otrs::make_tool_bar() {
     ///привязываем действия на панель инструментов
     toolBar = new QToolBar(tr("Main toolbar"));
-    toolBar->addAction(action_logo);
+    //toolBar->addAction(action_logo);
     toolBar->addAction(action_log);
     toolBar->addAction(action_tray);
     toolBar->addSeparator();
-    toolBar->addAction(actionCheck);
-    toolBar->addSeparator();
+    //toolBar->addAction(actionCheck);
+    //toolBar->addSeparator();
     toolBar->addAction(action_exit);
     this->addToolBar(toolBar);
 }
