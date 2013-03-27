@@ -23,6 +23,11 @@ answer::answer(Ticket ticket, QString header, QString footer, QString action, QW
     QString body = ticket.body;
     body.replace("\n", "\n> ");
     body.replace("<br/>", "");
+    body.replace("&quot;", "\"");
+    body.replace("&nbsp;", " ");
+    body.replace("&lt;", "<");
+    body.replace("&gt;", ">");
+
     body = header + body + footer;
     editBody->setText(body);
 
